@@ -11,6 +11,9 @@ const SOURCES = `
   ${S('Product data', [
     `${L('Open Food Facts', 'https://world.openfoodfacts.org')}, ${L('Open Beauty Facts', 'https://world.openbeautyfacts.org')}, ${L('Open Pet Food Facts', 'https://world.openpetfoodfacts.org')}, ${L('Open Products Facts', 'https://world.openproductsfacts.org')} — crowd-sourced, Open Database Licence (ODbL).`,
     `${L('USDA FoodData Central', 'https://fdc.nal.usda.gov')} — US government branded food data.`,
+    `${L('NIH Dietary Supplement Label Database (DSLD)', 'https://dsld.od.nih.gov')} — National Institutes of Health, Office of Dietary Supplements. US supplement labels (CC0).`,
+    `${L('openFDA drug labels', 'https://open.fda.gov')} — U.S. Food and Drug Administration. Over-the-counter medicines and US personal-care products regulated as drugs (sunscreen, fluoride toothpaste, antiperspirant). Do not rely on openFDA to make decisions regarding medical care.`,
+    `${L('UPCitemdb', 'https://www.upcitemdb.com')} — product name and brand only, used to pre-fill the add form when no database has the product.`,
     `Loose fruit & veg codes — ${L('International Federation for Produce Standards (IFPS) PLU codes', 'https://www.ifpsglobal.com')}. Typical nutrition values per 100g.`,
     `Barcode country — GS1 company prefixes (shows where a barcode was registered, not necessarily where it was made).`
   ])}
@@ -64,6 +67,7 @@ const PRIVACY = `
   ${S('What is sent, and to whom', [
     'Barcodes and search terms → Open Food Facts, Open Beauty Facts, Open Pet Food Facts and Open Products Facts (run by the non-profit Open Food Facts association, France).',
     'Barcodes not found there → USDA FoodData Central (US Department of Agriculture), using a shared demo key or your own key if you add one.',
+    'Barcodes not found there → the NIH Dietary Supplement Label Database (US National Institutes of Health) and openFDA (US Food and Drug Administration). If nothing has it, the barcode is sent to UPCitemdb to look up the product name.',
     'The first time you read a label in a language other than English, the language data file is downloaded from the jsDelivr content network.',
     'These services may record standard technical data such as your IP address as part of normal web traffic, under their own privacy policies. Sanitas does not send your name, location, health settings or history to anyone.'
   ])}

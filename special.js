@@ -24,6 +24,48 @@ const DICT = [
   ['vegetable oil', /植物油脂|植物油|식물성유지|식물성유|aceite vegetal|grasa vegetal/],
   ['margarine', /マーガリン|마가린|人造黄油|margarina/],
   ['olive oil', /オリーブ油|オリーブオイル|올리브유|橄榄油|aceite de oliva/],
+  // European languages — French, German, Italian, Dutch, Portuguese, Polish
+  ['glucose-fructose syrup', /sirop de glucose-fructose|glukose-fruktose-sirup|sciroppo di glucosio-fruttosio|glucose-fructosestroop|xarope de glucose-frutose|syrop glukozowo-fruktozowy/],
+  ['glucose syrup', /sirop de glucose|glukosesirup|sciroppo di glucosio|glucosestroop|xarope de glucose|syrop glukozowy/],
+  ['sugar', /\bsucre\b|\bzucker\b|\bzucchero\b|\bsuiker\b|\ba[çc][úu]car\b|\bcukier\b|\bsukker\b|\bsocker\b/],
+  ['dextrose', /dextrose|destrosio|dekstroza/], ['honey', /\bmiel\b|\bhonig\b|\bmiele\b|\bhoning\b|\bmel\b|\bmi[óo]d\b/],
+  ['palm oil', /huile de palme|palm[öo]l|olio di palma|palmolie|[óo]leo de palma|olej palmowy|graisse de palme|palmfett/],
+  ['rapeseed oil', /huile de colza|raps[öo]l|olio di colza|koolzaadolie|[óo]leo de colza|olej rzepakowy/],
+  ['sunflower oil', /huile de tournesol|sonnenblumen[öo]l|olio di (semi di )?girasole|zonnebloemolie|[óo]leo de girassol|olej s[łl]onecznikowy/],
+  ['olive oil', /huile d'olive|oliven[öo]l|olio (extra vergine )?di oliva|olijfolie|azeite/],
+  ['vegetable oil', /huiles? v[ée]g[ée]tales?|pflanzen[öo]l|pflanzenfett|oli(o|i) vegetal[ei]|plantaardige olie|[óo]leos? vegeta(l|is)|olej ro[śs]linny|t[łl]uszcz ro[śs]linny/],
+  ['hydrogenated fat', /hydrog[ée]n[ée]|geh[äa]rtet|idrogenat|gehard|hidrogenad|utwardzon/],
+  ['wheat flour', /farine de bl[ée]|weizenmehl|farina di (grano|frumento)|tarwebloem|tarwemeel|farinha de trigo|m[ąa]ka pszenna/],
+  ['whole grain', /compl[èe]te|vollkorn|integrale|volkoren|integral|pe[łl]noziarnist/],
+  ['salt', /\bsel\b|\bsalz\b|\bsale\b|\bzout\b|\bs[óo]l\b/],
+  ['milk', /\blait\b|\bmilch|\blatte\b|\bmelk\b|\bleite\b|\bmleko\b|lait en poudre|vollmilchpulver|latte in polvere|melkpoeder/],
+  ['butter', /\bbeurre\b|\bbutter\b|\bburro\b|\bboter\b|\bmanteiga\b|\bmas[łl]o\b/],
+  ['cream', /\bcr[èe]me\b|\bsahne\b|\bpanna\b|\broom\b|\bnata\b|\bnatas\b|\bsmietan/],
+  ['egg', /\b(oeufs?|œufs?|eier?|uova|uovo|eieren|ovos?|jaja?)\b/],
+  ['cocoa', /\bcacao\b|\bkakao\b|\bcacau\b/],
+  ['water', /\beau\b|\bwasser\b|\bacqua\b|\bwater\b|\b[áa]gua\b|\bwoda\b/],
+  ['flavouring', /ar[ôo]mes?|aromen|aromi|aroma's|aromas?|aromat/],
+  ['sweetener', /[ée]dulcorants?|s[üu][ßs]stoff|edulcorant[ei]|zoetstof|edulcorantes?|substancja s[łl]odz[ąa]ca/],
+  ['emulsifier', /[ée]mulsifiants?|emulgator|emulsionant[ei]|emulgator(en)?|emulsionantes?/],
+  ['maltodextrin', /maltodextrine|maltodextrin|maltodestrin/],
+  ['modified starch', /amidon modifi[ée]|modifizierte st[äa]rke|amido modificato|gemodificeerd zetmeel|amido modificado|skrobia modyfikowana/],
+  ['colour', /colorants?|farbstoff|coloranti|kleurstof|corantes?|barwnik/],
+  ['preservative', /conservateurs?|konservierungsstoff|conservanti|conserveermiddel|conservantes?|konserwant/],
+  ['yeast', /levure|hefe|lievito|\bgist\b|levedura|dro[żz]d[żz]e/],
+  ['oats', /flocons d'avoine|haferflocken|fiocchi d'avena|havervlokken|flocos de aveia|p[łl]atki owsiane|\bavoine\b|\bhafer\b|\bavena\b|\bhaver\b|\baveia\b|\bowies\b/],
+  ['potatoes', /pommes de terre|kartoffeln|patate|aardappel(en)?|batatas?|ziemniaki/],
+  ['tomato', /tomates?|tomaten|pomodor[oi]|tomaat|pomidor/],
+  ['chicken', /\bpoulet\b|h[äa]hnchen|huhn|\bpollo\b|\bkip\b|frango|kurczak/], ['pork', /\bporc\b|schweinefleisch|\bmaiale\b|varkensvlees|\bporco\b|wieprzow/], ['beef', /\bb[œoe]uf\b|rindfleisch|manzo|rundvlees|\bvaca\b|wo[łl]ow/],
+  // Colombia (Spanish)
+  ['cane sugar (panela)', /\bpanela\b/],
+  ['lard', /manteca de cerdo/], ['shortening', /\bmanteca\b(?! de cacao)/],
+  ['wheat flour', /harina de trigo/], ['corn flour', /harina de ma[ií]z/],
+  ['artificial flavouring', /sabor(izante)? artificial|saborizantes?/], ['sweetener', /edulcorantes?/],
+  ['preservative', /conservantes?|preservantes?/], ['colouring', /colorantes?/],
+  ['whole milk powder', /leche entera en polvo/], ['milk powder', /leche en polvo/],
+  // India (Hindi)
+  ['sugar', /चीनी|शक्कर/], ['jaggery (sugar)', /गुड़/], ['refined wheat flour', /मैदा/], ['whole wheat flour', /गेहूं का आटा|आटा/],
+  ['salt', /नमक/], ['palm oil', /पाम तेल|पामोलिन/], ['hydrogenated vegetable fat', /वनस्पति/], ['milk', /दूध/], ['ghee', /घी/], ['water', /पानी/],
   // additives
   ['monosodium glutamate', /調味料（アミノ酸等）|調味料\(アミノ酸等\)|グルタミン酸ナトリウム|L-글루타민산나트륨|글루타민산나트륨|谷氨酸钠|味精|glutamato monos[oó]dico/],
   ['sodium nitrite', /亜硝酸ナトリウム|아질산나트륨|亚硝酸钠|nitrito de sodio/],
@@ -44,7 +86,7 @@ const DICT = [
   ['egg', /鶏卵|卵|계란|달걀|鸡蛋|\bhuevos?\b/],
   ['chicken', /鶏肉|チキン|닭고기|鸡肉|\bpollo\b/],
   ['pork', /豚肉|ポーク|돼지고기|猪肉|\bcerdo\b|\bpuerco\b/],
-  ['beef', /牛肉|비프|쇠고기|소고기|\bres\b|carne de res/],
+  ['beef', /牛肉|비프|쇠고기|소고기|carne de res/],
   ['gelatine', /ゼラチン|젤라틴|明胶|gelatina/],
   ['milk', /乳成分|牛乳|脱脂粉乳|全粉乳|우유|탈지분유|牛奶|乳粉|奶粉|\bleche\b/],
   ['cocoa', /カカオ|ココア|코코아|카카오|可可|\bcacao\b/],
@@ -62,7 +104,48 @@ function translate(text){
   for (const [en, re] of DICT){ if ((re.test(text) || re.test(low)) && !out.includes(en)) out.push(en); }
   return out.join(', ');
 }
-const looksForeign = t => /[぀-ヿ㐀-鿿가-힯]/.test(t) || (/\b(az[uú]car|harina|aceite|leche|huevo|sal|agua)\b/i.test(t) && !/\b(sugar|flour|oil|milk|water|salt)\b/i.test(t));
+const EU_WORDS = /\b(sucre|farine|huile|lait|sel|zucker|mehl|[öo]l|milch|salz|zucchero|farina|olio|latte|sale|suiker|bloem|olie|melk|zout|a[çc][úu]car|farinha|[óo]leo|leite|cukier|m[ąa]ka|olej|mleko|s[óo]l)\b/i;
+const looksForeign = t => /[぀-ヿ㐀-鿿가-힯]/.test(t) || (/[\u0900-\u097F]{3}/.test(t) && !/[a-z]{4,}\s[a-z]{4,}/i.test(t)) || (EU_WORDS.test(t) && !/\b(sugar|flour|oil|milk|salt)\b/i.test(t)) || (/\b(az[uú]car|harina|aceite|leche|huevo|sal|agua)\b/i.test(t) && !/\b(sugar|flour|oil|milk|water|salt)\b/i.test(t));
+
+// ---------- Regional label words written in English text (India, Philippines, Colombia) ----------
+// Adds the plain-English meaning next to the local word, so the normal checks pick it up.
+const REGIONAL = [
+  [/\bmaida\b/gi, 'refined wheat flour'], [/\bvanaspati\b|\bdalda\b/gi, 'hydrogenated vegetable fat'],
+  [/\bpalm ?olein\b/gi, 'palm oil'], [/\b(jaggery|gur|khandsari|shakkar|bura)\b/gi, 'cane sugar'],
+  [/\b(chakki )?atta\b/gi, 'whole wheat flour'], [/\bbesan\b/gi, 'chickpea flour'], [/\b(sooji|suji|rava)\b/gi, 'semolina'],
+  [/\b(asukal|azucar)\b/gi, 'sugar'], [/\basin\b/gi, 'salt'], [/\bharina\b/gi, 'wheat flour'], [/\bmantika\b/gi, 'lard'],
+  [/\bvetsin\b/gi, 'monosodium glutamate'], [/\bgata\b/gi, 'coconut milk'], [/\btoyo\b/gi, 'soy sauce'], [/\bpatis\b/gi, 'fish sauce'],
+  [/\bgatas\b/gi, 'milk'], [/\bitlog\b/gi, 'egg'], [/\btubig\b/gi, 'water'], [/\blangis ng niyog\b/gi, 'coconut oil'], [/\blangis\b/gi, 'oil'],
+  [/\bpanela\b/gi, 'cane sugar']
+];
+function regional(text){
+  if (!text) return text;
+  let t = text;
+  for (const [re, en] of REGIONAL) t = t.replace(re, m => new RegExp('\\b' + en + '\\b', 'i').test(t) ? m : `${m} (${en})`);
+  return t;
+}
+
+// ---------- Colombia's front-of-pack warning seals (Resolución 2492 de 2022, corrected by 254 de 2023) ----------
+// Sodium ≥ 1 mg per kcal or ≥ 300 mg/100 g (drinks with no energy: ≥ 40 mg/100 mL); free sugars, saturated fat ≥ 10% of energy;
+// trans fat ≥ 1% of energy; any sweetener. Only for processed foods with added salt, sugar, fat or sweetener.
+const SWEET = /\be9(5\d|6\d)\b|sucralose|aspartame|acesulfame|stevia|steviol|saccharin|cyclamate|sorbitol|xylitol|erythritol|maltitol|monk fruit|sweetener/;
+function colombiaSeals(N, n, ingText, additives, isDrink){
+  const t = String(ingText || '').toLowerCase();
+  if (!t) return [];
+  const kcal = N.kj != null ? N.kj / 4.184 : null;
+  const addedSugar = /\b(sugar|cane sugar|panela|syrup|glucose|fructose|dextrose|honey|maltose|invert|molasses|jaggery|az[uú]car|jarabe)\b/.test(t);
+  const addedSalt = /\bsalt\b|\bsal\b|sodium|sodio|msg|e621|soy sauce|fish sauce/.test(t);
+  const addedFat = /\boil\b|\bfat\b|butter|lard|shortening|margarine|ghee|aceite|grasa|manteca|cream/.test(t);
+  const sweet = SWEET.test(t) || (additives || []).some(a => /^E9(5\d|6\d)/i.test(a.code || ''));
+  const out = [];
+  if (addedSalt && N.sodium != null && ((kcal && N.sodium / kcal >= 1) || (!isDrink && N.sodium >= 300) || (isDrink && (!kcal || kcal < 1) && N.sodium >= 40))) out.push('SODIUM');
+  if (addedSugar && N.sugar != null && kcal && (N.sugar * 4) / kcal >= 0.10) out.push('SUGARS');
+  if (addedFat && N.sat != null && kcal && (N.sat * 9) / kcal >= 0.10) out.push('SATURATED FAT');
+  const trans = n && n['trans-fat_100g'] != null ? Number(n['trans-fat_100g']) : null;
+  if (trans != null && kcal && (trans * 9) / kcal >= 0.01) out.push('TRANS FAT');
+  if (sweet) out.push('SWEETENERS');
+  return out;
+}
 
 // ---------- Product kinds ----------
 function kind(p, N, cats, ingText){
@@ -169,5 +252,5 @@ function doses(p){
   return items;
 }
 
-window.FSSpecial = { translate, looksForeign, kind, alcohol, alcoholPct, volumeMl, doses };
+window.FSSpecial = {regional, colombiaSeals,  translate, looksForeign, kind, alcohol, alcoholPct, volumeMl, doses };
 })();

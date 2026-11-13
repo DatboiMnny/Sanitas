@@ -49,9 +49,9 @@ async function ocr(file, onProgress, lang){
 
 function extractIngredients(text){
   let t = text.replace(/\r/g, '');
-  const m = t.match(/(ingredientes|ingred[il1]ents?|原材料名|原材料|원재료명|원재료|配料表|配料|成分)\s*[:;.\-：]?\s*/i);
+  const m = t.match(/(ingr[ée]dients|zutaten|ingredienti|ingredi[eë]nten|sk[łl]adniki|ingredienser|ainesosat|sl[oo]žen[ií]|ingredientes|ingred[il1]ents?|mga sangkap|sangkap|सामग्री|अवयव|原材料名|原材料|원재료명|원재료|配料表|配料|成分)\s*[:;.\-：]?\s*/i);
   if (m) t = t.slice(m.index + m[0].length);
-  const stop = t.search(/\b(contains|allergen|may contain|may be present|nutrition information|nutrition facts|storage|store in|made in|manufactured|packed in|product of|best before|contiene|información nutricional|consumir preferentemente)\b|内容量|賞味期限|アレルギー|栄養成分|알레르기|영양정보|내용량|过敏|营养成分|保质期|净含量/i);
+  const stop = t.search(/\b(contains|allergen|may contain|may be present|nutrition information|nutrition facts|storage|store in|made in|manufactured|packed in|product of|best before|contiene|información nutricional|consumir preferentemente|peut contenir|traces? [ée]ventuelles|valeurs nutritionnelles|[àa] consommer|kann spuren|n[äa]hrwert\w*|mindestens haltbar|pu[òo] contenere|valori nutrizionali|da consumarsi|kan sporen|voedingswaarde\w*|ten minste houdbaar|pode conter|informa[çc][ãa]o nutricional|consumir de prefer[êe]ncia|mo[żz]e zawiera[ćc]|warto[śs][ćc] od[żz]ywcza|najlepiej spo[żz]y[ćc])\b|内容量|賞味期限|アレルギー|栄養成分|알레르기|영양정보|내용량|过敏|营养成分|保质期|净含量/i);
   if (stop > 20) t = t.slice(0, stop);
   t = t.replace(/\bfiour\b/gi, 'flour').replace(/\blodised\b/g, 'iodised').replace(/\bLodised\b/g, 'Iodised').replace(/\b0il\b/g, 'oil').replace(/\bsa1t\b/gi, 'salt');
   return t.replace(/\s*\n\s*/g, ' ').replace(/\s{2,}/g, ' ').replace(/\s+([,.)])/g, '$1').trim().replace(/[.\s]+$/, '');
@@ -65,27 +65,33 @@ function parseNutrition(text){
   const nums = l => (l.match(/\d+(?:\.\d+)?\s*(?:%|kj|kJ|KJ|cal|Cal|kcal|mg|g|mcg|µg)?/g) || [])
       .map(x => x.trim()).filter(x => !x.endsWith('%')).map(x => ({v: parseFloat(x), u: (x.match(/[a-zµ]+$/i) || [''])[0].toLowerCase()}));
   // AU/NZ rows have 2+ amounts (per serve … per 100g) → last one is per 100g. US rows have one.
-  const pick = arr => { if (!arr.length) return null; if (arr.length >= 2){ multi++; return arr[arr.length - 1]; } single++; return arr[0]; };
+  // Which column is per 100g? Australian panels: per serve … per 100g (last). European ones: per 100g … per portion (first).
+  let first100 = false;
+  for (const l of lines){
+    const i100 = l.search(/(per|pour|pro|je|per|por|na|para|w)?\s*100\s?(g|ml)\b/i), iServe = l.search(/serv|portion|porci[óo]n|porzione|portie|por[çc][ãa]o|porcj|annos|portie/i);
+    if (i100 >= 0 && iServe >= 0){ first100 = i100 < iServe; break; }
+  }
+  const pick = arr => { if (!arr.length) return null; if (arr.length >= 2){ multi++; return first100 ? arr[0] : arr[arr.length - 1]; } single++; return arr[0]; };
   const rows = [
-    ['kj', /^\s*energy|calories|energ[ií]a|エネルギー|熱量|열량|能量/i],
-    ['protein', /protein|prote[ií]nas?|たんぱく質|蛋白質|단백질|蛋白质/i],
-    ['sat', /saturated|sat\.?\s*fat|saturad|飽和脂肪|포화지방|饱和脂肪/i],
-    ['fat', /(^|\s)(fat|total fat|fat,? total)\b|grasas?( totales)?|脂質|지방|脂肪/i],
-    ['sugar', /sugars?\b|az[uú]cares|糖類|당류|^\s*-?\s*糖\b/i],
-    ['carbs', /carbohydrate|carbs|hidratos|carbohidratos|炭水化物|탄수화물|碳水化合物/i],
-    ['fibre', /fib(re|er)|fibra|食物繊維|식이섬유|膳食纤维/i],
+    ['kj', /^\s*energy|calories|energ[ií]a|[ée]nergie|energia|energi\b|warto[śs][ćc] energetyczna|valor energ[ée]tico|valore energetico|brennwert|エネルギー|熱量|열량|能量/i],
+    ['protein', /protein|prote[ií]nas?|prot[ée]ines|eiwei(ß|ss)|proteine|eiwitten|bia[łl]ko|たんぱく質|蛋白質|단백질|蛋白质/i],
+    ['sat', /saturated|sat\.?\s*fat|saturad|satur[ée]s|ges[äa]ttigt|saturi|verzadigd|nasycone|m[æa]ttede|m[äa]ttat|飽和脂肪|포화지방|饱和脂肪/i],
+    ['fat', /(^|\s)(fat|total fat|fat,? total)\b|grasas?( totales)?|mati[èe]res grasses|lipides|\bfett\b|grassi|\bvetten?\b|t[łl]uszcz|gorduras|\bfedt\b|脂質|지방|脂肪/i],
+    ['sugar', /sugars?\b|az[uú]cares|sucres|zucker|zuccheri|suikers|cukry|a[çc][úu]cares|sukker|socker|糖類|당류|^\s*-?\s*糖\b/i],
+    ['carbs', /carbohydrate|carbs|hidratos|carbohidratos|glucides|kohlenhydrate|carboidrati|koolhydraten|w[ęe]glowodany|kulhydrat|kolhydrat|炭水化物|탄수화물|碳水化合物/i],
+    ['fibre', /fib(re|er)|fibra|fibres alimentaires|ballaststoffe|vezels|b[łl]onnik|kostfiber|食物繊維|식이섬유|膳食纤维/i],
     ['sodium', /sodium|sodio|ナトリウム|나트륨|钠/i],
-    ['salt', /食塩相当量|salt equivalent|^\s*sal\b/i]
+    ['salt', /食塩相当量|salt equivalent|^\s*(salt|sel|salz|sale|zout|s[óo]l|sal)\b/i]
   ];
   for (const line of lines){
     for (const [k, re] of rows){
       if (out[k] != null || !re.test(line)) continue;
-      if (k === 'fat' && /saturated|trans|mono|poly|saturad|飽和|포화|饱和|트랜스|反式/i.test(line)) continue;
-      if (k === 'carbs' && /sugar|az[uú]car|糖類|당류/i.test(line)) continue;
+      if (k === 'fat' && /saturated|trans|mono|poly|saturad|satur[ée]s|ges[äa]ttigt|saturi|verzadigd|nasycone|飽和|포화|饱和|트랜스|反式/i.test(line)) continue;
+      if (k === 'carbs' && /sugar|az[uú]car|sucres|zucker|zuccheri|suikers|cukry|a[çc][úu]car|糖類|당류/i.test(line)) continue;
       const n = pick(nums(line.replace(re, ' ')));
       if (!n || isNaN(n.v)) continue;
       if (k === 'salt'){ if (out.sodium == null) out.sodium = Math.round(n.v * 393); continue; }
-      if (k === 'kj'){ out.kj = (/cal/.test(n.u) || /calories|kcal/i.test(line)) ? Math.round(n.v * 4.184) : n.v; }
+      if (k === 'kj'){ out.kj = n.u === 'kj' ? n.v : (/cal/.test(n.u) || (/calories|kcal/i.test(line) && !/kj/i.test(line))) ? Math.round(n.v * 4.184) : n.v; }
       else if (k === 'sodium'){ out.sodium = n.u === 'g' ? n.v * 1000 : n.v; }
       else out[k] = n.v;
       break;
@@ -107,11 +113,17 @@ const NAME_MAP = [
   [/mono-? ?and diglycerides|monoglycerides/, 'e471'], [/monosodium glutamate|\bmsg\b/, 'e621'], [/acesulfame/, 'e950'], [/aspartame/, 'e951'],
   [/sucralose/, 'e955'], [/steviol|stevia/, 'e960'], [/erythritol/, 'e968'], [/sodium stearoyl lactylate/, 'e481'], [/datem/, 'e472e'],
   [/sodium phosphate|disodium phosphate/, 'e339'],
+  // Spanish (Colombia), Filipino and Indian label names
+  [/tartrazina/, 'e102'], [/amarillo ocaso|amarillo crepúsculo/, 'e110'], [/rojo allura|rojo 40/, 'e129'], [/benzoato de sodio/, 'e211'], [/sorbato de potasio|potassium sorbate/, 'e202'],
+  [/glutamato monos[oó]dico|\bvetsin\b|\bajinomoto\b/, 'e621'], [/sucralosa/, 'e955'], [/aspartamo/, 'e951'], [/acesulfame de potasio/, 'e950'], [/[aá]cido fosf[oó]rico/, 'e338'],
+  [/nitrito de sodio/, 'e250'], [/carragenina|carragenano/, 'e407'], [/di[oó]xido de titanio/, 'e171'], [/color(ante)? caramelo/, 'e150c'],
   [/potassium bromate|bromated flour/, 'e924'], [/azodicarbonamide/, 'e927a'], [/brominated vegetable oil/, 'e443'], [/erythrosine|red 3\b|fd&c red #?3\b/, 'e127'], [/propyl gallate/, 'e310'], [/\bedta\b/, 'e385'], [/xanthan/, 'e415'], [/guar gum/, 'e412'], [/soy lecithin|soya lecithin|sunflower lecithin|lecithin/, 'e322']
 ];
 function additivesFromText(text){
   const t = (text || '').toLowerCase(), out = new Set();
   (t.match(/\be-?\s?(\d{3,4}[a-z]?)\b/g) || []).forEach(m => out.add('en:e' + m.replace(/[^0-9a-z]/g, '').replace(/^e/, '')));
+  // India and the Philippines write additives as INS numbers: "Flavour enhancer (INS 621)"
+  (t.match(/\bins\s?(?:no\.?\s?)?:?\s?(\d{3,4}[a-z]?)\b/g) || []).forEach(m => { const d = m.match(/(\d{3,4}[a-z]?)$/)[1]; const v = parseInt(d); if (v >= 100 && v <= 1599) out.add('en:e' + d); });
   for (const m of t.matchAll(CLASS_RE)){
     (m[2].match(/\b\d{3,4}[a-z]?\b/g) || []).forEach(n => { const v = parseInt(n); if (v >= 100 && v <= 1599) out.add('en:e' + n); });
   }

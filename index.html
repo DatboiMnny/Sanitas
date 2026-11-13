@@ -33,7 +33,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg)}
-body{font-family:-apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased;
+body{font-family:var(--font);color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased;
   padding:env(safe-area-inset-top) 0 calc(90px + env(safe-area-inset-bottom));-webkit-tap-highlight-color:transparent;transition:background .2s,color .2s}
 a{color:var(--brand)}
 .wrap{max-width:560px;margin:0 auto;padding:14px 16px}
@@ -44,7 +44,7 @@ header p{font-size:12px;color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
 .card h2{font-size:16px;font-weight:700;margin-bottom:10px;letter-spacing:-.01em}
 .muted{color:var(--muted);font-size:13px}
-.btn{appearance:none;border:0;border-radius:14px;padding:14px 16px;font:600 15px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;color:inherit;text-decoration:none}
+.btn{appearance:none;border:0;border-radius:14px;padding:14px 16px;font:600 15px var(--font);cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;color:inherit;text-decoration:none}
 .btn.primary{background:var(--brand);color:#fff}
 .btn.ghost{background:var(--brand-soft);color:var(--brand)}
 .btn.plain{background:var(--soft);color:var(--ink)}
@@ -52,7 +52,7 @@ header p{font-size:12px;color:var(--muted)}
 .btn:active{transform:scale(.98)}
 .btn:disabled{opacity:.45}
 .row{display:flex;gap:10px}.row>*{flex:1}
-.field{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;margin-top:8px}
+.field{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:16px var(--font);margin-top:8px}
 select.field{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 55%,calc(100% - 15px) 55%;background-size:5px 5px;background-repeat:no-repeat}
 textarea.field{min-height:80px;resize:vertical}
 label.lbl{font-size:13px;font-weight:700;display:block;margin-top:16px;color:var(--ink)}
@@ -62,7 +62,7 @@ label.lbl{font-size:13px;font-weight:700;display:block;margin-top:16px;color:var
 .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--brand-soft);color:var(--brand)}
 /* segmented control */
 .seg{display:flex;background:var(--soft);border-radius:14px;padding:4px;gap:4px;margin-top:8px}
-.seg button{flex:1;border:0;background:none;color:var(--muted);font:600 14px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:10px 6px;border-radius:10px;cursor:pointer}
+.seg button{flex:1;border:0;background:none;color:var(--muted);font:600 14px var(--font);padding:10px 6px;border-radius:10px;cursor:pointer}
 .seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
 /* home */
 .hero-scan{display:flex;align-items:center;gap:14px;padding:20px;border-radius:20px;cursor:pointer;color:#fff;
@@ -73,11 +73,11 @@ label.lbl{font-size:13px;font-weight:700;display:block;margin-top:16px;color:var
 .actions{display:flex;gap:10px;margin-top:10px}
 .actions .btn{padding:12px;font-size:14px}
 .searchbar{display:flex;align-items:center;gap:8px;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:4px 4px 4px 14px;margin-top:12px}
-.searchbar input{flex:1;border:0;background:none;color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:10px 0;outline:none;min-width:0}
-.searchbar button{border:0;background:var(--brand);color:#fff;font:600 14px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:10px 16px;border-radius:10px;cursor:pointer}
+.searchbar input{flex:1;border:0;background:none;color:var(--ink);font:16px var(--font);padding:10px 0;outline:none;min-width:0}
+.searchbar button{border:0;background:var(--brand);color:#fff;font:600 14px var(--font);padding:10px 16px;border-radius:10px;cursor:pointer}
 .sec-title{display:flex;justify-content:space-between;align-items:baseline;margin:18px 2px 8px}
 .sec-title h3{font-size:15px;font-weight:700}
-.sec-title button{border:0;background:none;color:var(--brand);font:600 13px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;cursor:pointer}
+.sec-title button{border:0;background:none;color:var(--brand);font:600 13px var(--font);cursor:pointer}
 .recent{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;margin:0 -16px;padding-left:16px;padding-right:16px}
 .recent::-webkit-scrollbar{display:none}
 .rc{flex:none;width:128px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;cursor:pointer;box-shadow:var(--shadow)}
@@ -90,7 +90,7 @@ label.lbl{font-size:13px;font-weight:700;display:block;margin-top:16px;color:var
 .scanner{position:relative;border-radius:20px;overflow:hidden;background:#000;aspect-ratio:3/4;max-height:62vh;width:100%}
 .scanner video{width:100%;height:100%;object-fit:cover;display:block}
 .scanner .ctrls{position:absolute;top:12px;left:12px;display:flex;gap:8px}
-.scanner .ctrls button{min-width:44px;height:38px;border-radius:19px;border:0;background:rgba(0,0,0,.55);color:#fff;font:700 14px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:0 12px}
+.scanner .ctrls button{min-width:44px;height:38px;border-radius:19px;border:0;background:rgba(0,0,0,.55);color:#fff;font:700 14px var(--font);padding:0 12px}
 .scanner .frame{position:absolute;left:6%;right:6%;top:30%;height:30%;border:3px solid rgba(255,255,255,.95);border-radius:16px;box-shadow:0 0 0 999px rgba(0,0,0,.4)}
 .scanner .laser{position:absolute;left:10%;right:10%;top:45%;height:2px;background:#3fbf7f;box-shadow:0 0 12px #3fbf7f;animation:las 1.6s ease-in-out infinite}
 @keyframes las{0%,100%{transform:translateY(-40px)}50%{transform:translateY(40px)}}
@@ -173,23 +173,93 @@ ul.plain li{font-size:14px;padding:8px 0;border-top:1px solid var(--line)}ul.pla
 /* nav, fab, toast */
 nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:5}
 nav .in{display:flex;max-width:560px;width:100%}
-nav button{flex:1;border:0;background:none;color:var(--muted);font:600 11.5px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button{flex:1;border:0;background:none;color:var(--muted);font:600 11.5px var(--font);padding:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
 nav button .i{font-size:21px;line-height:1}
 nav button.on{color:var(--brand)}
-.fab{position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:6;border:0;border-radius:999px;background:var(--brand);color:#fff;font:700 15px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:14px 20px;box-shadow:0 8px 24px rgba(31,122,77,.35);cursor:pointer}
+.fab{position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:6;border:0;border-radius:999px;background:var(--brand);color:#fff;font:700 15px var(--font);padding:14px 20px;box-shadow:0 8px 24px rgba(31,122,77,.35);cursor:pointer}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:30}
 .modal .sheet{background:var(--card);color:var(--ink);border-radius:24px 24px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));max-width:560px;width:100%;max-height:90vh;overflow:auto;animation:up .25s ease}
 @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
-.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--bg);font:600 14px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:10px 18px;border-radius:999px;transition:all .25s;z-index:9;pointer-events:none}
+.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--bg);font:600 14px var(--font);padding:10px 18px;border-radius:999px;transition:all .25s;z-index:9;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- Sanitas look: shelf-label type, cool sage paper, no gradients ---------- */
+@font-face{font-family:Archivo;src:url(archivo.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Archivo;src:url(archivo-ext.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap;unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Archivo;src:url(archivo-vi.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap;unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB}
+:root{--font:Archivo,-apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;
+  --bg:#e9eeea; --paper:#fff; --card:#fff; --ink:#17251d; --muted:#5b6a62; --line:#cfd9d2; --soft:#f2f5f3;
+  --brand:#14704a; --brand2:#14704a; --brand-soft:#dcebe2; --shadow:none}
+[data-theme="dark"]{--bg:#0f1512; --paper:#18201b; --card:#18201b; --ink:#e8efe9; --muted:#97a69d; --line:#2b3730; --soft:#1f2923;
+  --brand:#5cc28f; --brand2:#5cc28f; --brand-soft:#1d3628}
+body{font-family:var(--font);font-size:15px;letter-spacing:.005em}
+h1,h2,h3,.hero-scan b,summary,.grade,.sec-title h3,.tabs button{font-stretch:78%}
+header{gap:8px;margin:6px 0 18px;color:var(--brand)}
+header .mark{width:26px;height:26px}
+header h1{font-size:28px;font-weight:850;letter-spacing:-.01em;color:var(--ink);font-stretch:72%}
+.card{border-radius:12px;box-shadow:none}
+.card h2,details.sec summary{font-size:17px;font-weight:750}
+.btn{border-radius:10px;font-weight:650;gap:8px}
+.btn .i,.searchbar .i{width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.btn.plain{background:var(--card);border:1px solid var(--line)}
+.field,.searchbar{border-radius:10px}
+.chip{border-radius:8px}
+.hero-scan{background:var(--card)!important;color:var(--ink)!important;border:3px solid var(--ink);border-radius:12px;box-shadow:none!important;padding:18px 18px 16px;gap:16px;align-items:center}
+.hero-scan .bars{width:58px;height:40px;flex:none;color:var(--ink)}
+.hero-scan b{font-size:26px;font-weight:850;line-height:1.05;letter-spacing:-.005em}
+.hero-scan span{font-size:13px;color:var(--muted);opacity:1;display:block;margin-top:4px}
+.hero-scan:active{background:var(--soft)!important}
+.searchbar{background:var(--card)}
+.searchbar .i{color:var(--muted)}
+.searchbar button{border-radius:8px}
+.sec-title{margin:22px 0 10px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.sec-title h3{font-size:19px;font-weight:850}
+.rc{border-radius:10px;box-shadow:none}
+.rc .sc,.hist .sc,.pl .sc{border-radius:6px!important;font-stretch:75%;font-weight:850}
+.tabs{display:flex;gap:6px;margin:4px 0 10px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);font:700 15px var(--font);font-stretch:85%;padding:9px 16px;border-radius:999px;cursor:pointer;flex:none}
+.tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--card)}
+.plist{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pl{display:flex;align-items:center;gap:12px;padding:11px 12px;border-top:1px solid var(--line);cursor:pointer}
+.pl:first-child{border-top:0}
+.pl:active{background:var(--soft)}
+.pl img,.pl .ph{width:44px;height:44px;border-radius:8px;object-fit:contain;background:#fff;flex:none;display:grid;place-items:center;color:var(--muted)}
+.pl .ph{background:var(--soft)}
+.pl .t{flex:1;min-width:0}
+.pl b{display:block;font-size:14.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl span{font-size:12.5px;color:var(--muted)}
+.pl .sc{width:40px;height:34px;display:grid;place-items:center;color:#fff;font-size:17px;flex:none}
+.plist .empty{padding:16px;color:var(--muted);font-size:14px}
+.plist .skel{height:66px;border-top:1px solid var(--line);background:linear-gradient(90deg,var(--soft),var(--card),var(--soft));background-size:200% 100%;animation:sk 1.2s linear infinite}
+.plist .skel:first-child{border-top:0}
+@keyframes sk{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.plist .skel{animation:none}}
+nav{background:var(--card);backdrop-filter:none;-webkit-backdrop-filter:none;border-top:1px solid var(--line)}
+nav button{font:650 11.5px var(--font);gap:4px;padding:7px 4px 5px;position:relative}
+nav button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--brand)}
+nav button.on::before{content:'';position:absolute;top:-7px;left:28%;right:28%;height:3px;border-radius:0 0 3px 3px;background:var(--brand)}
+.fab{border-radius:10px;font-family:var(--font);box-shadow:none;border:2px solid var(--card)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.why li .ic{font-size:0;border-radius:6px;width:22px;height:22px;margin-top:1px}
+.why li .ic::before{font:800 13px var(--font);content:'✓';color:var(--brand)}
+.why li .bad::before{content:'!';color:var(--warn-ink)}
+.card,.modal .sheet{border-radius:12px}
+.modal .sheet{border-radius:16px 16px 0 0}
+.pill{border-radius:6px}
+.grade{border-radius:6px}
+.hero .brand{margin-top:2px!important;margin-bottom:6px}
+.hero .grade{margin:2px 6px 4px 0}
+[data-theme="dark"] .fab,[data-theme="dark"] .btn.primary,[data-theme="dark"] .searchbar button,[data-theme="dark"] .grade,[data-theme="dark"] .pl .sc{color:#0f1512}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="offline hidden" id="offline">📴 You're offline — saved products, history, fruit &amp; veg and clothing still work. New lookups need internet.</div>
   <header>
-    <div class="logo">S</div>
-    <div><h1>Sanitas</h1><p>Scan it. Score it. Swap it.</p></div>
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 26C6 14 13 6 26 6c0 13-8 20-20 20z" fill="currentColor"/><path d="M8 24 19 13" stroke="var(--paper)" stroke-width="2.2" stroke-linecap="round"/></svg>
+    <h1>Sanitas</h1>
   </header>
 
   <!-- HOME / SCAN -->
@@ -201,7 +271,7 @@ nav button.on{color:var(--brand)}
     </div>
 
     <div id="scanIdle" class="hero-scan" role="button" tabindex="0">
-      <div class="ic">▮▯▮</div>
+      <svg class="bars" viewBox="0 0 64 40" aria-hidden="true"><g fill="currentColor"><rect x="0" width="3" height="40"/><rect x="5" width="1.5" height="40"/><rect x="9" width="4" height="40"/><rect x="15" width="1.5" height="40"/><rect x="19" width="2.5" height="40"/><rect x="24" width="1.5" height="40"/><rect x="28" width="4" height="40"/><rect x="34" width="1.5" height="40"/><rect x="38" width="3" height="40"/><rect x="43" width="1.5" height="40"/><rect x="47" width="4" height="40"/><rect x="53" width="1.5" height="40"/><rect x="57" width="2.5" height="40"/><rect x="61" width="3" height="40"/></g></svg>
       <div><b>Scan a barcode</b><span>Food, drinks, skincare, pet food, cleaning products & more</span></div>
     </div>
     <div id="scanLive" class="scanner hidden">
@@ -212,15 +282,14 @@ nav button.on{color:var(--brand)}
       <div class="ctrls"><button id="zoomBtn" class="hidden">1×</button><button id="torchBtn" class="hidden">🔦</button></div>
     </div>
     <div class="actions">
-      <label class="btn plain" for="photoScan">📸 Photo of barcode</label>
-      <button class="btn plain" id="focusSearch">🔎 Search</button>
+      <label class="btn plain" for="photoScan"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo of barcode</label>
+      <button class="btn plain" id="focusSearch"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>Search</button>
     </div>
-    <button class="btn plain" id="clothBtn" style="margin-top:10px">👕 Clothing — scan the care label</button>
     <input id="photoScan" type="file" accept="image/*" capture="environment" style="display:none">
     <div id="scanErr"></div>
 
     <div class="searchbar">
-      <span>🔎</span>
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>
       <input id="q" inputmode="search" enterkeyhint="search" placeholder="Barcode, product, brand or fruit sticker no.">
       <button id="qGo">Go</button>
     </div>
@@ -252,6 +321,16 @@ nav button.on{color:var(--brand)}
         <p class="muted" style="margin-top:10px">80+ Excellent · 60+ Good · 40+ Mediocre · 20+ Poor · below 20 Bad</p>
       </div>
     </details>
+
+    <section id="picks" aria-labelledby="picksH">
+      <div class="sec-title"><h3 id="picksH">Top rated</h3></div>
+      <div class="tabs" role="tablist" id="pickTabs">
+        <button role="tab" data-p="food" aria-selected="true">Food</button>
+        <button role="tab" data-p="skin" aria-selected="false">Skincare</button>
+        <button role="tab" data-p="hyg" aria-selected="false">Hygiene</button>
+      </div>
+      <div id="pickList" class="plist"></div>
+    </section>
   </section>
 
   <section id="v-result" class="hidden"></section>
@@ -263,6 +342,12 @@ nav button.on{color:var(--brand)}
 
   <!-- SETTINGS -->
   <section id="v-me" class="hidden">
+    <div class="card">
+      <h2>🌐 Language</h2>
+      <div class="chips" id="langChips"></div>
+      <p class="muted" style="margin-top:8px">Ingredient explanations stay in English for now.</p>
+    </div>
+
     <div class="card">
       <h2>🎨 Appearance</h2>
       <div class="seg" id="themeSeg">
@@ -322,6 +407,8 @@ nav button.on{color:var(--brand)}
       </div>
     </details>
 
+
+
     <div class="card">
       <h2>ℹ️ About & legal</h2>
       <div class="row"><button class="btn plain" id="btnSources">📚 Sources</button><button class="btn plain" id="btnPrivacy">🔒 Privacy</button></div>
@@ -339,11 +426,15 @@ nav button.on{color:var(--brand)}
 <div class="modal hidden" id="modal"></div>
 
 <nav><div class="in">
-  <button data-v="scan" class="on"><span class="i">🏠</span>Home</button>
-  <button data-v="history"><span class="i">🕘</span>History</button>
-  <button data-v="me"><span class="i">⚙️</span>Settings</button>
+  <button data-v="scan" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></svg>Home</button>
+  <button data-v="cloth"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 4 7l2 4 2-1v10h8V10l2 1 2-4-5-3c-.5 1.5-1.6 2.3-3 2.3S9.5 5.5 9 4z"/></svg>Clothing</button>
+  <button data-v="history"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>History</button>
+  <button data-v="me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Settings</button>
 </div></nav>
 
+<script src="ui.js"></script>
+<script src="i18n-dict.js"></script>
+<script src="i18n.js"></script>
 <script src="native.js"></script>
 <script src="info.js"></script>
 <script src="barcode.js"></script>
@@ -355,6 +446,8 @@ nav button.on{color:var(--brand)}
 <script src="clothing.js"></script>
 <script src="animal.js"></script>
 <script src="cosmetics.js"></script>
+<script src="healthdb.js"></script>
 <script src="app.js"></script>
+<script>FSI18N.picker(document.getElementById('langChips'))</script>
 </body>
 </html>

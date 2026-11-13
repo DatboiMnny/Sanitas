@@ -24,14 +24,17 @@ function show(v){
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   if (v !== 'scan') stopScan();
   $('#fab').classList.toggle('hidden', v !== 'result');
-  if (v === 'scan') renderRecent();
+  if (v === 'scan'){ renderRecent(); if (!picksLoaded && typeof PICKS !== 'undefined' && PICKS) loadPicks(pickTab); }
   if (v === 'history') renderHistory();
   if (v === 'me') renderMyProducts();
   if (v === 'result' && !$('#v-result').innerHTML.trim())
     $('#v-result').innerHTML = '<div class="card"><p class="muted">No result yet — scan something first.</p></div>';
   window.scrollTo(0, 0);
 }
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => show(b.dataset.v));
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  if (b.dataset.v === 'cloth') return clothIntroThen(() => { renderClothForm(null, null); document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b)); });
+  show(b.dataset.v);
+});
 const goScan = () => show('scan');
 // ---------------- UI helpers: theme, toast, recent, fab ----------------
 function applyTheme(pref){
@@ -54,8 +57,8 @@ function renderRecent(){
   const h = store.get('fs_hist', []);
   $('#recentWrap').classList.toggle('hidden', !h.length);
   $('#recent').innerHTML = h.slice(0, 12).map(x => `<div class="rc" data-c="${esc(x.code)}">
-    <div class="top">${x.img ? `<img src="${esc(x.img)}" alt="">` : `<div class="ph">${x.emoji || ({beauty:'🧴', pet:'🐾', products:'🧽', produce:'🥬', clothing:'👕'}[x.kind] || (x.cos ? '🧴' : '🛒'))}</div>`}
-    <div class="sc" style="background:${col(x.score)};width:34px;height:34px;font-size:13px;border-radius:10px">${x.score}</div></div>
+    <div class="top">${x.img ? `<img src="${esc(x.img)}" alt="">` : `<div class="ph">${x.emoji || ({beauty:'🧴', pet:'🐾', products:'🧽', produce:'🥬', clothing:'👕', medicine:'💊'}[x.kind] || (x.cos ? '🧴' : '🛒'))}</div>`}
+    <div class="sc" style="background:${typeof x.score === 'number' ? col(x.score) : 'var(--muted)'};width:34px;height:34px;font-size:13px;border-radius:10px">${x.score}</div></div>
     <b>${esc(x.name)}</b><span>${esc(x.brand || '')}</span></div>`).join('');
   $('#recent').querySelectorAll('.rc').forEach(el => el.onclick = () => lookup(el.dataset.c));
 }
@@ -91,8 +94,9 @@ function enhanceResult(r){
   // collapse long sections
   [...root.querySelectorAll(':scope > .card')].forEach((c, i) => {
     const h = c.querySelector(':scope > h2'); if (!h || c === heroCard || c === why) return;
-    if (/alternatives|picks|Add it|Edit product|Not in/i.test(h.textContent)) return;
-    const keepOpen = /Nutrition breakdown/.test(h.textContent);
+    const hText = window.FSI18N ? FSI18N.origText(h) : h.textContent;
+    if (/alternatives|picks|Add it|Edit product|Not in/i.test(hText)) return;
+    const keepOpen = /Nutrition breakdown/.test(hText);
     const d = document.createElement('details'); d.className = 'card sec';
     const s = document.createElement('summary'); s.innerHTML = h.innerHTML; h.remove();
     const cnt = c.querySelectorAll('.item').length; if (cnt) s.insertAdjacentHTML('beforeend', `<span class="cnt">${cnt}</span>`);
@@ -120,7 +124,8 @@ function chips(el, list, key){
 const REGIONS = [['en:australia','🇦🇺 Australia'],['world','🌍 Worldwide — no preference'],['en:new-zealand','🇳🇿 New Zealand'],['en:united-states','🇺🇸 USA'],['en:united-kingdom','🇬🇧 UK'],['en:canada','🇨🇦 Canada'],
   ['en:japan','🇯🇵 Japan'],['en:south-korea','🇰🇷 South Korea'],['en:china','🇨🇳 China'],['en:taiwan','🇹🇼 Taiwan'],['en:india','🇮🇳 India'],['en:thailand','🇹🇭 Thailand'],['en:philippines','🇵🇭 Philippines'],['en:vietnam','🇻🇳 Vietnam'],
   ['en:indonesia','🇮🇩 Indonesia'],['en:malaysia','🇲🇾 Malaysia'],['en:singapore','🇸🇬 Singapore'],['en:mexico','🇲🇽 Mexico'],['en:spain','🇪🇸 Spain'],['en:colombia','🇨🇴 Colombia'],['en:argentina','🇦🇷 Argentina'],['en:chile','🇨🇱 Chile'],
-  ['en:peru','🇵🇪 Peru'],['en:france','🇫🇷 France'],['en:germany','🇩🇪 Germany'],['en:italy','🇮🇹 Italy'],['en:netherlands','🇳🇱 Netherlands'],['en:greece','🇬🇷 Greece'],['en:turkey','🇹🇷 Turkey'],['en:lebanon','🇱🇧 Lebanon'],['en:south-africa','🇿🇦 South Africa']];
+  ['en:peru','🇵🇪 Peru'],['en:france','🇫🇷 France'],['en:germany','🇩🇪 Germany'],['en:italy','🇮🇹 Italy'],['en:netherlands','🇳🇱 Netherlands'],['en:belgium','🇧🇪 Belgium'],['en:ireland','🇮🇪 Ireland'],['en:portugal','🇵🇹 Portugal'],['en:austria','🇦🇹 Austria'],['en:switzerland','🇨🇭 Switzerland'],
+  ['en:poland','🇵🇱 Poland'],['en:czech-republic','🇨🇿 Czechia'],['en:hungary','🇭🇺 Hungary'],['en:romania','🇷🇴 Romania'],['en:croatia','🇭🇷 Croatia'],['en:denmark','🇩🇰 Denmark'],['en:sweden','🇸🇪 Sweden'],['en:finland','🇫🇮 Finland'],['en:norway','🇳🇴 Norway'],['en:greece','🇬🇷 Greece'],['en:turkey','🇹🇷 Turkey'],['en:lebanon','🇱🇧 Lebanon'],['en:south-africa','🇿🇦 South Africa']];
 const regionTag = () => me.region && me.region !== 'world' ? me.region : null;
 const regionName = () => (REGIONS.find(r => r[0] === (me.region || 'en:australia')) || REGIONS[0])[1].replace(/^\S+\s/, '');
 const countryLabel = tag => { const r = REGIONS.find(x => x[0] === tag); return r ? r[1] : titleCase(tag.replace(/^\w\w:/, '').replace(/-/g, ' ')); };
@@ -135,7 +140,7 @@ chips($('#goals'), GOALS, 'goals'); chips($('#diets'), DIETS, 'diets'); chips($(
 $('#regionSel').innerHTML = REGIONS.map(r => `<option value="${r[0]}" ${r[0] === me.region ? 'selected' : ''}>${r[1]}</option>`).join('');
 $('#avoid').value = me.avoid || ''; $('#usdaKey').value = me.usdaKey || '';
 $('#saveMe').onclick = () => {
-  me.avoid = $('#avoid').value.trim(); me.usdaKey = $('#usdaKey').value.trim(); me.region = $('#regionSel').value; store.set('fs_me', me);
+  me.avoid = $('#avoid').value.trim(); me.usdaKey = $('#usdaKey').value.trim(); me.region = $('#regionSel').value; store.set('fs_me', me); picksLoaded = false;
   $('#savedMsg').textContent = 'Saved ✓'; setTimeout(() => $('#savedMsg').textContent = '', 1800);
   toast('Saved ✓');
 };
@@ -334,6 +339,10 @@ async function searchOne(base, q, au, src){
 // Open Food/Beauty Facts tag every ingredient with a standard id (e.g. "en:sunflower-oil") whatever the label language.
 function enName(i){ return i && i.id && /^en:/.test(i.id) ? i.id.slice(3).replace(/-/g, ' ') : ''; }
 function englishIngredients(p){
+  const t = englishIngredients0(p);
+  return window.FSSpecial && FSSpecial.regional ? FSSpecial.regional(t) : t;
+}
+function englishIngredients0(p){
   if (p.ingredients_text_en) return p.ingredients_text_en;
   const ids = (p.ingredients || []).map(enName).filter(Boolean);
   const orig = p.ingredients_text || '';
@@ -366,21 +375,28 @@ async function getProductLive(code){
   const custom = store.get('fs_custom', {})[code];
   if (custom) return {p: custom, src: custom._src || 'food', custom: true};
   if (window.FSProduce && /^9?\d{4}$/.test(code)){ const pr = FSProduce.build(code); return pr ? {p: pr, src: 'food', produce: true} : null; }
-  let netFail = 0, tried = 0;
+  let netFail = 0, tried = 0, weak = null;
   for (const c of variants(code)){
     tried++;
     const res = await Promise.all([API, BAPI, PAPI, OPAPI].map(b => getOne(b, c).catch(e => e)));
-    const [food, beauty, petf, prod] = res.map(x => x instanceof Error ? null : x);
+    let [food, beauty, petf, prod] = res.map(x => x instanceof Error ? null : x);
+    // skincare that someone filed in the food database (e.g. "Non food products, Open Beauty Facts")
+    const nonFood = x => x && /non-food|open-beauty-facts|cosmetic|body-lotion|body-cream|moisturi[sz]|skin-care|skincare|shampoo|deodorant|hygiene|toiletr/.test(((x.categories_tags || []).join(' ') + ' ' + (x.categories || '')).toLowerCase());
+    if (food && nonFood(food)){ if (!beauty) beauty = Object.assign({}, food, {_movedFromFood: true}); food = null; }
     if (res.every(x => x instanceof Error)){ netFail++; continue; }
     const foodLike = food && ((food.nutriments && Object.keys(food.nutriments).length > 2) || (food.categories_tags || []).length);
+    const thin = x => !(x.ingredients_text || x.ingredients_text_en || (x.ingredients || []).length);
     if (food && foodLike) return {p: food, src: 'food'};
-    if (beauty) return {p: beauty, src: 'beauty'};
+    if (beauty && !thin(beauty)) return {p: beauty, src: 'beauty'};
     if (petf) return {p: petf, src: 'pet'};
-    if (prod) return {p: prod, src: 'products'};
-    if (food) return {p: food, src: 'food'};
+    if (prod && !thin(prod)) return {p: prod, src: 'products'};
+    // found, but with little info — check the health databases first, fall back to this
+    if (!weak) weak = beauty ? {p: beauty, src: 'beauty'} : food ? {p: food, src: 'food'} : prod ? {p: prod, src: 'products'} : null;
   }
-  const u = await getUSDA(code).catch(() => null);
+  const [u, h] = await Promise.all([getUSDA(code).catch(() => null), window.FSHealth ? FSHealth.lookup(code).catch(() => null) : null]);
   if (u) return {p: u, src: 'food'};
+  if (h) return h;
+  if (weak) return weak;
   if (netFail === tried){
     const c = store.get('fs_cache', {})[code];
     if (c) return {p: c.p, src: c.src, cached: true};
@@ -417,9 +433,12 @@ async function lookup(code){
   $('#v-result').innerHTML = `<div class="card loading"><div class="spin"></div><b>Looking up ${esc(code)}…</b><p class="muted">Checking ingredients, additives and nutrition</p></div>`;
   try{
     const got = await getProduct(code);
-    if (!got || !got.p){ renderAddForm(code); return; }
+    if (!got || !got.p){
+      const hint = window.FSHealth && navigator.onLine !== false ? await FSHealth.nameOnly(code).catch(() => null) : null;
+      renderAddForm(code, hint || undefined); return;
+    }
     display(got, code);
-  }catch(e){
+  }catch(e){ console.error('lookup failed', e);
     $('#v-result').innerHTML = `<div class="card"><div class="err">${navigator.onLine === false ? 'You\'re offline, and this product isn\'t saved on your phone yet. Try again when you\'re back online — or add it from the label.' : 'Couldn\'t reach the food databases. Check your internet and try again.'}</div><button class="btn ghost" style="margin-top:12px" id="addOff">📸 Add it from the label</button><button class="btn ghost" style="margin-top:12px" id="bk">Back</button></div>`;
     $('#bk').onclick = goScan;
     const ao = $('#addOff'); if (ao) ao.onclick = () => renderAddForm(code);
@@ -428,6 +447,13 @@ async function lookup(code){
 function display(got, code){
     const p = got.p;
     p.code = p.code || code;
+    if (got.src === 'medicine'){
+      $('#v-result').innerHTML = window.FSHealth ? FSHealth.renderMedicine(p) : '';
+      const h = store.get('fs_hist', []).filter(x => x.code !== code);
+      h.unshift({code, name: p.product_name, brand: p.brands, score: '💊', kind: 'medicine', ts: Date.now()});
+      store.set('fs_hist', h.slice(0, 50));
+      return;
+    }
     if (got.src !== 'food'){
       const r = nonFoodAnalyse(p, got.src);
       renderCos(r);
@@ -453,10 +479,10 @@ function display(got, code){
       const ring = document.querySelector('#v-result .ring'); if (ring){ ring.querySelector('.num b').textContent = '?'; ring.querySelectorAll('circle')[1].setAttribute('stroke', 'var(--muted)'); ring.querySelectorAll('circle')[1].setAttribute('stroke-dashoffset', String(2 * Math.PI * 50)); }
       const gr = document.querySelector('#v-result .hero .grade'); if (gr){ gr.textContent = 'Not enough info'; gr.style.background = 'var(--muted)'; }
       const sum = document.querySelector('#v-result .hero + p'); if (sum) sum.textContent = 'The database only has the name for this one, so there\'s nothing to score yet. Complete it from the label for a real score.';
-      const why = [...document.querySelectorAll('#v-result .card')].find(c => /Why this score/.test(c.textContent)); if (why) why.remove();
+      const why = [...document.querySelectorAll('#v-result .card')].find(c => /Why this score/.test(window.FSI18N ? FSI18N.origText(c) : c.textContent)); if (why) why.remove();
       const hist = store.get('fs_hist', []).filter(x => x.code !== r.code); store.set('fs_hist', hist);
     }
-    if (!got.custom && !p._produce && (noIng || nKeys < 3)){
+    if (!got.custom && !p._produce && !(p._source || '').startsWith('NIH') && (noIng || nKeys < 3)){
       const own = r.bc && r.bc.ownBrand ? ` Lots of ${r.bc.ownBrand} own-brand products are only partly filled in.` : '';
       $('#v-result').insertAdjacentHTML('afterbegin', `<div class="flag" style="display:flex;flex-direction:column;gap:10px">⚠️ This product is missing ${noIng && nKeys < 3 ? 'its ingredients and nutrition info' : noIng ? 'its ingredient list' : 'nutrition info'} in the database, so the score may be off.${own}<button class="btn primary" id="completeLbl" style="padding:11px">📸 Complete it from the label</button></div>`);
       $('#completeLbl').onclick = () => renderAddForm(code, Object.assign({}, p, {_src: 'food', _fromDb: true}));
@@ -663,7 +689,7 @@ function renderClothForm(code, pre){
   };
 }
 
-$('#clothBtn').onclick = () => clothIntroThen(() => renderClothForm(null, null));
+
 
 // ---------------- add a missing product from its label ----------------
 function renderAddForm(code, pre){
@@ -674,10 +700,11 @@ function renderAddForm(code, pre){
   const NF = [['kj','Energy (kJ)', val('energy-kj_100g')], ['protein','Protein (g)', val('proteins_100g')], ['fat','Fat, total (g)', val('fat_100g')], ['sat','Sat. fat (g)', val('saturated-fat_100g')],
     ['carbs','Carbs (g)', val('carbohydrates_100g')], ['sugar','Sugars (g)', val('sugars_100g')], ['fibre','Fibre (g)', val('fiber_100g')], ['sodium','Sodium (mg)', n.sodium_100g != null ? Math.round(n.sodium_100g * 1000) : ''], ['abv','Alcohol % (drinks)', val('alcohol_100g')]];
   $('#v-result').innerHTML = `
-  ${pre ? '' : `<div class="card"><h2>🤔 Not in any database yet</h2>
+  ${pre && !pre._hint ? '' : `<div class="card"><h2>🤔 Not in any database yet</h2>
     <p class="muted">${/^9?\d{4}$/.test(code) ? `Sticker code <b>${esc(code)}</b> isn't in the built-in fruit &amp; veg list (it covers about 300 common items). Try searching the name, e.g. "mango".` : instore ? 'This looks like an <b>in-store barcode</b> (bakery, deli or weighed items). These are unique to each store, so no database has them.' :
-      `Barcode ${esc(code)} isn't in Open Food Facts, Open Beauty Facts, Open Pet Food Facts, Open Products Facts or USDA yet. Lots of Australian supermarket and bakery products are missing.`}</p></div>`}
-  <div class="card"><h2>📸 ${pre && pre._fromDb ? 'Complete it from the label' : pre ? 'Edit product' : 'Add it from the label'}</h2>
+      `Barcode ${esc(code)} isn't in Open Food Facts, Open Beauty Facts, Open Pet Food Facts, Open Products Facts, USDA, the NIH supplement database or FDA medicine labels yet. Lots of Australian supermarket, pharmacy and bakery products are missing.`}</p></div>`}
+  ${pre && pre._fromDb ? '' : `<button class="btn ghost" id="byName" style="margin:-4px 0 12px">🔎 Search the databases by name instead</button>`}
+  <div class="card"><h2>📸 ${pre && pre._fromDb ? 'Complete it from the label' : pre && !pre._hint ? 'Edit product' : 'Add it from the label'}</h2>${pre && pre._hint ? `<div class="note" style="margin-bottom:10px"><span>Found the name in ${esc(pre._hint)}:</span> <b class="notr">${esc(pre.product_name)}${pre.brands ? ' · ' + esc(pre.brands) : ''}</b><br><span>It doesn't list ingredients, so add them below.</span></div>` : ''}
     <p class="muted">Snap the ingredients and the nutrition panel. The app reads them on your phone, scores the product, and remembers it, so next time it comes straight up.</p>
     <label class="lbl">What is it?</label>
     <div class="chips" id="aKind"><span class="chip ${kind0 === 'food' ? 'on' : ''}" data-k="food">🍞 Food / drink / supplement</span><span class="chip ${kind0 === 'beauty' ? 'on' : ''}" data-k="beauty">🧴 Personal care</span><span class="chip ${kind0 === 'pet' ? 'on' : ''}" data-k="pet">🐾 Pet food</span><span class="chip ${kind0 === 'products' ? 'on' : ''}" data-k="products">🧽 Household</span><span class="chip" data-k="clothing">👕 Clothing</span></div>
@@ -687,7 +714,7 @@ function renderAddForm(code, pre){
     <div class="chips" id="aBrandChips" style="margin-top:8px">${['Woolworths','Woolworths Essentials','Macro','Woolworths Gold','Coles','Coles Simply','Coles Finest','Coles Nature\'s Kitchen','Aldi','IGA'].map(b => `<span class="chip" style="padding:6px 10px;font-size:12px">${esc(b)}</span>`).join('')}</div>
     <input class="field" id="aQty" placeholder="Size, e.g. 375ml or 500g (optional)" value="${esc(pre ? pre.quantity || '' : '')}">
     <label class="lbl">Label language</label>
-    <select class="field" id="aLang"><option value="eng">English</option><option value="spa">Español (Spanish)</option><option value="jpn">日本語 (Japanese)</option><option value="kor">한국어 (Korean)</option><option value="chi_sim">简体中文 (Chinese, simplified)</option><option value="chi_tra">繁體中文 (Chinese, traditional)</option></select>
+    <select class="field" id="aLang"><option value="eng">English</option><option value="spa">Español (Spanish)</option><option value="jpn">日本語 (Japanese)</option><option value="kor">한국어 (Korean)</option><option value="chi_sim">简体中文 (Chinese, simplified)</option><option value="chi_tra">繁體中文 (Chinese, traditional)</option><option value="fra">Français (French)</option><option value="deu">Deutsch (German)</option><option value="ita">Italiano (Italian)</option><option value="nld">Nederlands (Dutch)</option><option value="por">Português (Portuguese)</option><option value="pol">Polski (Polish)</option><option value="hin+eng">हिन्दी + English (India)</option><option value="fil+eng">Filipino + English (Philippines)</option></select>
     <label class="lbl">Ingredients</label>
     <label class="btn ghost" for="ocrIng" style="margin-top:8px">📸 Photo of the ingredients</label>
     <input type="file" id="ocrIng" accept="image/*" capture="environment" style="display:none">
@@ -704,6 +731,12 @@ function renderAddForm(code, pre){
     <button class="btn ghost" id="aBack" style="margin-top:8px">Cancel</button>
   </div>`;
   let kind = kind0;
+  if ($('#byName')) $('#byName').onclick = () => {
+    show('scan'); const q = $('#q');
+    q.value = pre && pre._hint ? [pre.brands, pre.product_name].filter(Boolean).join(' ').replace(/\b\d+\s?(ml|g|oz|fl ?oz|pack|ct)\b/gi, '').trim() : '';
+    if (q.value) doQuery(); else { q.focus(); q.scrollIntoView({block: 'center'}); }
+  };
+  { const m = {es:'spa', ja:'jpn', ko:'kor', zh:'chi_sim'}[window.FSI18N && FSI18N.lang] || ({'en:colombia':'spa', 'en:mexico':'spa', 'en:spain':'spa', 'en:france':'fra', 'en:belgium':'fra', 'en:germany':'deu', 'en:austria':'deu', 'en:switzerland':'deu', 'en:italy':'ita', 'en:netherlands':'nld', 'en:portugal':'por', 'en:poland':'pol', 'en:japan':'jpn', 'en:south-korea':'kor', 'en:china':'chi_sim', 'en:taiwan':'chi_tra'})[me.region]; if (m && !(pre && pre.lang)) $('#aLang').value = m; }
   $('#aBrandChips').querySelectorAll('.chip').forEach(c => c.onclick = () => { $('#aBrand').value = c.textContent; $('#aBrandChips').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c)); });
   $('#aKind').querySelectorAll('.chip').forEach(c => c.onclick = () => {
     if (c.dataset.k === 'clothing') return clothIntroThen(() => renderClothForm(code, {product_name: $('#aName').value.trim(), brands: $('#aBrand').value.trim()}));
@@ -714,7 +747,7 @@ function renderAddForm(code, pre){
   const runOcr = async (file, what) => {
     status(`Reading the ${what}… (the first time takes a few extra seconds)`);
     const lang = $('#aLang').value;
-    try{ return await FSLabel.ocr(file, pc => status(`Reading the ${what}… ${pc}%`), lang === 'eng' ? 'eng' : lang + '+eng'); }
+    try{ return await FSLabel.ocr(file, pc => status(`Reading the ${what}… ${pc}%`), lang === 'eng' || lang.includes('+') ? lang : lang + '+eng'); }
     catch(e){ status(e.message || 'Couldn\'t read that photo.'); return null; }
   };
   $('#ocrIng').onchange = async e => {
@@ -1081,7 +1114,15 @@ function analyse(p){
     if ((tag && allergens.includes(tag)) || (stem.length > 2 && ingText.includes(stem))){ fit = 0; warnings.push(`Contains ${a} — on your avoid list.`); }
     else if (tag && traces.includes(tag)){ fit = Math.min(fit, 4); warnings.push(`May contain traces of ${a}.`); }
   }
-  const ana = p.ingredients_analysis_tags || [];
+  let ana = p.ingredients_analysis_tags || [];
+  if (!ana.some(t => /vegan|vegetarian/.test(t)) && ingText){
+    // no database flags (e.g. products you added yourself) — check the ingredient words
+    const meat = /\b(beef|pork|chicken|turkey|lamb|mutton|bacon|ham|meat|gelatin[e]?|fish|tuna|salmon|anchov\w*|prawn|shrimp|oyster|lard|tallow|fish sauce|chicken (fat|stock|broth))\b/;
+    const animal = /\b(milk|cream|butter|cheese|yog(h)?urt|whey|casein\w*|lactose|egg|eggs|honey|ghee|e120|carmine|cochineal|beeswax)\b/;
+    const it = ingText.replace(/\b(coconut|almond|oat|soy|soya|rice|cashew|plant|nut) (milk|cream|butter)\b|\b(peanut|cocoa|shea|nut|seed) butter\b|cream of tartar|\b(milk|egg|dairy|gelatine?)[- ]free\b|\bbutternut\b/g, '');
+    if (meat.test(it)) ana = ana.concat(['en:non-vegan', 'en:non-vegetarian']);
+    else if (animal.test(it)) ana = ana.concat(['en:non-vegan']);
+  }
   if (has('Vegan') && ana.includes('en:non-vegan')){ fit -= 6; fitWhy.push('not vegan'); }
   else if (has('Vegan') && ana.includes('en:maybe-non-vegan')){ fit -= 2; fitWhy.push('may not be vegan'); }
   if (has('Vegetarian') && ana.includes('en:non-vegetarian')){ fit -= 6; fitWhy.push('not vegetarian'); }
@@ -1330,6 +1371,18 @@ function wireNutrition(){
   });
 }
 
+// Colombia's black octagon warning seals — shown for Colombian products, or if you shop in Colombia
+const SEAL_ES = {'SODIUM': 'EXCESO EN SODIO', 'SUGARS': 'EXCESO EN AZÚCARES', 'SATURATED FAT': 'EXCESO EN GRASAS SATURADAS', 'TRANS FAT': 'EXCESO EN GRASAS TRANS', 'SWEETENERS': 'CONTIENE EDULCORANTE'};
+function colombiaSealsHtml(r, p){
+  if (!window.FSSpecial || !FSSpecial.colombiaSeals || r.produce || r.type !== 'food' || r.sp === 'alcohol' || r.sp === 'formula' || r.sp === 'babyfood') return '';
+  const co = me.region === 'en:colombia' || (r.bc && r.bc.country === 'Colombia') || ((p && p.countries_tags) || []).includes('en:colombia');
+  if (!co) return '';
+  const seals = FSSpecial.colombiaSeals(r.N, (p && p.nutriments) || {}, englishIngredients(p || {}), r.additives, r.isDrink);
+  if (!seals.length) return `<p class="muted" style="margin-top:10px">🇨🇴 Would carry no Colombian warning seals (estimated from the nutrition panel).</p>`;
+  return `<div style="margin-top:12px"><div class="muted" style="font-size:13px;margin-bottom:6px">🇨🇴 Colombian warning seals (estimated)</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">${seals.map(x => `<span class="notr" style="background:#111;color:#fff;font-weight:800;font-size:10px;line-height:1.15;text-align:center;padding:8px 6px;width:78px;min-height:58px;display:flex;align-items:center;justify-content:center;clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)">${SEAL_ES[x]}</span>`).join('')}</div>
+    <p class="muted" style="font-size:12px;margin-top:6px">Under Colombia's labelling law (Resolución 2492 de 2022) these are required when a processed food is high in sodium, sugars, saturated or trans fat, or contains sweeteners.</p></div>`;
+}
 function renderResult(r, p){
   r._p = p || {};
   const s = r.score, c = col(s), C = 2 * Math.PI * 50, N = r.N;
@@ -1359,6 +1412,7 @@ function renderResult(r, p){
       </div>
     </div>
     <p style="margin-top:14px;font-size:15px">${esc(r.summary)}</p>
+    ${colombiaSealsHtml(r, p)}
   </div>
 
   <div class="card"><h2>${s < 65 ? '🔁 Better alternatives' : '✨ Similar or better picks'}</h2>
@@ -1552,11 +1606,72 @@ async function findCosAlternatives(p, r, src){
 
 function renderHistory(){
   const h = store.get('fs_hist', []);
-  $('#histList').innerHTML = h.length ? h.map(x => `<div class="hist" data-c="${esc(x.code)}"><div class="sc" style="background:${col(x.score)}">${x.score}</div>
+  $('#histList').innerHTML = h.length ? h.map(x => `<div class="hist" data-c="${esc(x.code)}"><div class="sc" style="background:${typeof x.score === 'number' ? col(x.score) : 'var(--muted)'}">${x.score}</div>
     <div><b>${x.emoji ? x.emoji + ' ' : ({beauty:'🧴 ', pet:'🐾 ', products:'🧽 ', clothing:'👕 '}[x.kind] || (x.cos ? '🧴 ' : ''))}${esc(x.name)}</b><span>${esc(x.brand || '')} · ${new Date(x.ts).toLocaleDateString('en-AU')}</span></div></div>`).join('')
     : '<p class="muted">Nothing yet. Your scans will show up here.</p>';
   $('#histList').querySelectorAll('.hist').forEach(el => el.onclick = () => lookup(el.dataset.c));
 }
+
+// ---------------- Top rated (home tabs) ----------------
+// Popular products in your shopping country, scored by Sanitas; only the high scorers are shown.
+var PICKS = {
+  food: {min: 75, q: [[API, 'food', 'categories', 'breakfast-cereals'], [API, 'food', 'categories', 'yogurts'], [API, 'food', 'categories', 'breads'], [API, 'food', 'categories', 'nuts'], [API, 'food', 'categories', 'fruit-juices']]},
+  skin: {min: 70, q: [[BAPI, 'beauty', 'search', 'moisturiser'], [BAPI, 'beauty', 'search', 'face cream'], [BAPI, 'beauty', 'search', 'sunscreen'], [BAPI, 'beauty', 'search', 'cleanser']]},
+  hyg:  {min: 70, q: [[BAPI, 'beauty', 'search', 'deodorant'], [BAPI, 'beauty', 'search', 'shampoo'], [BAPI, 'beauty', 'search', 'toothpaste'], [BAPI, 'beauty', 'search', 'body wash'], [BAPI, 'beauty', 'search', 'soap']]}
+};
+var pickTab = 'food', picksLoaded = false, pickSeq = 0;
+async function pickQuery(base, src, kind, term, region){
+  let url = `${base}/cgi/search.pl?action=process&json=1&page_size=24&sort_by=unique_scans_n&fields=${FIELDS}`;
+  url += kind === 'categories' ? `&tagtype_0=categories&tag_contains_0=contains&tag_0=${encodeURIComponent(term)}` : `&search_terms=${encodeURIComponent(term)}&search_simple=1`;
+  if (region) url += `&tagtype_1=countries&tag_contains_1=contains&tag_1=${encodeURIComponent(region.replace(/^en:/, ''))}`;
+  const r = await fetch(url); const j = await r.json();
+  return (j.products || []).filter(p => p.code && nameOf(p) !== 'Unnamed product').map(p => (p._src = src, p));
+}
+function scorePick(p){
+  try{
+    if (p._src === 'food'){
+      if (!((p.nutriments && Object.keys(p.nutriments).length > 2) && (p.ingredients_text || (p.ingredients || []).length))) return null;
+      return analyse(p).score;
+    }
+    const a = nonFoodAnalyse(p, p._src); return a.noIngredients ? null : a.score;
+  }catch(e){ return null; }
+}
+async function loadPicks(tab){
+  pickTab = tab; picksLoaded = true; const seq = ++pickSeq;
+  document.querySelectorAll('#pickTabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.p === tab)));
+  const el = $('#pickList'); if (!el) return;
+  const key = tab + '|' + (regionTag() || 'world');
+  const cache = store.get('fs_picks', {});
+  if (cache[key] && Date.now() - cache[key].ts < 864e5) return drawPicks(cache[key].items);
+  el.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+  const cfg = PICKS[tab];
+  const run = region => Promise.all(cfg.q.map(([b, src, kind, term]) => pickQuery(b, src, kind, term, region).catch(() => [])));
+  let lists = await run(regionTag());
+  if (lists.flat().length < 8 && regionTag()) lists = lists.concat(await run(null));
+  if (seq !== pickSeq) return;
+  const seen = new Set(), items = [];
+  for (const p of lists.flat()){
+    if (seen.has(p.code)) continue; seen.add(p.code);
+    const sc = scorePick(p);
+    if (tab === 'food' && (/supplement|protein|baby|infant|formula/.test((p.categories_tags || []).join(' ')) || /protein powder|whey|baby|pouch/i.test(nameOf(p)))) continue;
+    if (sc != null && sc >= cfg.min) items.push({code: p.code, name: nameOf(p), brand: p.brands || '', img: p.image_front_small_url || '', score: sc});
+  }
+  items.sort((a, b) => b.score - a.score);
+  const top = items.slice(0, 12);
+  if (top.length){ cache[key] = {ts: Date.now(), items: top}; store.set('fs_picks', cache); }
+  drawPicks(top);
+}
+function drawPicks(items){
+  const el = $('#pickList'); if (!el) return;
+  if (!items.length){ el.innerHTML = `<p class="empty">${navigator.onLine === false ? 'Top rated products need internet the first time. Connect and open this tab again.' : 'No high scorers found for your country yet. Try another tab, or set your country in Settings.'}</p>`; return; }
+  el.innerHTML = items.map(x => `<div class="pl" data-c="${esc(x.code)}" role="button" tabindex="0">
+    ${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy">` : '<div class="ph"></div>'}
+    <div class="t"><b class="notr">${esc(x.name)}</b><span class="notr">${esc(x.brand)}</span></div>
+    <div class="sc" style="background:${col(x.score)}">${x.score}</div></div>`).join('');
+  el.querySelectorAll('.pl').forEach(r => { r.onclick = () => lookup(r.dataset.c); r.onkeydown = e => { if (e.key === 'Enter') lookup(r.dataset.c); }; });
+}
+document.querySelectorAll('#pickTabs button').forEach(b => b.onclick = () => loadPicks(b.dataset.p));
+if (!$('#v-scan').classList.contains('hidden')) loadPicks(pickTab);
 
 // ---------------- install (PWA) ----------------
 const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;

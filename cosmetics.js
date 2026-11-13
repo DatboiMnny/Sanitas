@@ -182,7 +182,10 @@ window.FSCos = {
     good.slice(0, 3).forEach(x => effects.push(`✅ ${x.label}: ${x.note}`));
     if (g('preg').length) effects.push(`ℹ️ Retinoid: ${g('preg')[0].note}`);
     if (g('acid').length) effects.push(`ℹ️ Exfoliating acid: ${g('acid')[0].note} Wear sunscreen.`);
-    if (/sunscreen|sun-protection|spf/.test(cats)) effects.push('☀️ In Australia sunscreens are TGA-regulated — look for an AUST L number and reapply every 2 hours.');
+    if (/sunscreen|sun-protection|sun protection|spf/.test(cats)){
+      effects.push('☀️ Wearing sunscreen matters far more than which one — don\'t skip it because of this score. If you\'d rather avoid chemical UV filters, a zinc oxide (mineral) SPF 50+ is the alternative.');
+      effects.push('☀️ In Australia sunscreens are TGA-regulated — look for an AUST L number and reapply every 2 hours.');
+    }
     if (!effects.length) effects.push('Nothing stands out — a pretty clean formula.');
 
     // per-ingredient flags
