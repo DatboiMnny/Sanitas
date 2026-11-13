@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sanitas</title>
+<meta name="theme-color" content="#1f7a4d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sanitas">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<script>
+// Apply the saved theme before anything draws, so there's no flash.
+(function(){ var t = 'system'; try{ t = localStorage.getItem('fs_theme') || 'system'; }catch(e){}
+  var dark = t === 'dark' || (t === 'system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light'); })();
+</script>
+<style>
+:root{
+  --bg:#f4f3ee; --card:#ffffff; --ink:#16201a; --muted:#68716b; --line:#e7e5dd; --soft:#f4f3ee;
+  --brand:#1f7a4d; --brand2:#2a9d63; --brand-soft:#e3f1e9; --shadow:0 1px 2px rgba(20,30,25,.04),0 4px 16px rgba(20,30,25,.05);
+  --g5:#1f9d55; --g4:#7cb342; --g3:#f2a900; --g2:#f26b1d; --g1:#d93025;
+  --warn-bg:#fdecea; --warn-ink:#a1271b; --flag-bg:#fff3e0; --flag-ink:#9a4b00;
+}
+[data-theme="dark"]{
+  --bg:#0d120f; --card:#161e19; --ink:#edf2ee; --muted:#9aa59e; --line:#243029; --soft:#1d2621;
+  --brand:#3fbf7f; --brand2:#2a9d63; --brand-soft:#1b3326; --shadow:none;
+  --warn-bg:#3a1d1a; --warn-ink:#ffb4a9; --flag-bg:#3a2a14; --flag-ink:#ffcc80;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg)}
+body{font-family:-apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;color:var(--ink);line-height:1.45;-webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top) 0 calc(90px + env(safe-area-inset-bottom));-webkit-tap-highlight-color:transparent;transition:background .2s,color .2s}
+a{color:var(--brand)}
+.wrap{max-width:560px;margin:0 auto;padding:14px 16px}
+header{display:flex;align-items:center;gap:10px;margin:4px 0 16px}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--brand2),var(--brand));display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px}
+header h1{font-size:21px;font-weight:800;letter-spacing:-.02em}
+header p{font-size:12px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card h2{font-size:16px;font-weight:700;margin-bottom:10px;letter-spacing:-.01em}
+.muted{color:var(--muted);font-size:13px}
+.btn{appearance:none;border:0;border-radius:14px;padding:14px 16px;font:600 15px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;color:inherit;text-decoration:none}
+.btn.primary{background:var(--brand);color:#fff}
+.btn.ghost{background:var(--brand-soft);color:var(--brand)}
+.btn.plain{background:var(--soft);color:var(--ink)}
+.btn.danger{background:var(--warn-bg);color:var(--warn-ink)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.45}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.field{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;margin-top:8px}
+select.field{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 20px) 55%,calc(100% - 15px) 55%;background-size:5px 5px;background-repeat:no-repeat}
+textarea.field{min-height:80px;resize:vertical}
+label.lbl{font-size:13px;font-weight:700;display:block;margin-top:16px;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{padding:9px 13px;border-radius:999px;border:1px solid var(--line);font-size:13px;cursor:pointer;background:var(--card);color:var(--ink);user-select:none;transition:all .15s}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--brand-soft);color:var(--brand)}
+/* segmented control */
+.seg{display:flex;background:var(--soft);border-radius:14px;padding:4px;gap:4px;margin-top:8px}
+.seg button{flex:1;border:0;background:none;color:var(--muted);font:600 14px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:10px 6px;border-radius:10px;cursor:pointer}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+/* home */
+.hero-scan{display:flex;align-items:center;gap:14px;padding:20px;border-radius:20px;cursor:pointer;color:#fff;
+  background:linear-gradient(135deg,var(--brand2),#176a42);box-shadow:0 8px 24px rgba(31,122,77,.25)}
+.hero-scan .ic{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:26px;flex:none}
+.hero-scan b{font-size:19px;display:block;letter-spacing:-.01em}
+.hero-scan span{font-size:13px;opacity:.9}
+.actions{display:flex;gap:10px;margin-top:10px}
+.actions .btn{padding:12px;font-size:14px}
+.searchbar{display:flex;align-items:center;gap:8px;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:4px 4px 4px 14px;margin-top:12px}
+.searchbar input{flex:1;border:0;background:none;color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:10px 0;outline:none;min-width:0}
+.searchbar button{border:0;background:var(--brand);color:#fff;font:600 14px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:10px 16px;border-radius:10px;cursor:pointer}
+.sec-title{display:flex;justify-content:space-between;align-items:baseline;margin:18px 2px 8px}
+.sec-title h3{font-size:15px;font-weight:700}
+.sec-title button{border:0;background:none;color:var(--brand);font:600 13px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;cursor:pointer}
+.recent{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;margin:0 -16px;padding-left:16px;padding-right:16px}
+.recent::-webkit-scrollbar{display:none}
+.rc{flex:none;width:128px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;cursor:pointer;box-shadow:var(--shadow)}
+.rc .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rc img,.rc .ph{width:40px;height:40px;border-radius:10px;object-fit:contain;background:#fff;display:grid;place-items:center;font-size:20px}
+.rc .ph{background:var(--soft)}
+.rc b{font-size:12.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rc span{font-size:11px;color:var(--muted)}
+/* scanner */
+.scanner{position:relative;border-radius:20px;overflow:hidden;background:#000;aspect-ratio:3/4;max-height:62vh;width:100%}
+.scanner video{width:100%;height:100%;object-fit:cover;display:block}
+.scanner .ctrls{position:absolute;top:12px;left:12px;display:flex;gap:8px}
+.scanner .ctrls button{min-width:44px;height:38px;border-radius:19px;border:0;background:rgba(0,0,0,.55);color:#fff;font:700 14px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:0 12px}
+.scanner .frame{position:absolute;left:6%;right:6%;top:30%;height:30%;border:3px solid rgba(255,255,255,.95);border-radius:16px;box-shadow:0 0 0 999px rgba(0,0,0,.4)}
+.scanner .laser{position:absolute;left:10%;right:10%;top:45%;height:2px;background:#3fbf7f;box-shadow:0 0 12px #3fbf7f;animation:las 1.6s ease-in-out infinite}
+@keyframes las{0%,100%{transform:translateY(-40px)}50%{transform:translateY(40px)}}
+.scanner .hint{position:absolute;bottom:16px;left:12px;right:12px;text-align:center;color:#fff;font-size:14px;font-weight:600;text-shadow:0 1px 4px #000}
+.scanner .close{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:18px}
+/* result */
+.hero{display:flex;gap:16px;align-items:center}
+.ring{position:relative;width:112px;height:112px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .num{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .num b{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.ring .num small{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.hero h3{font-size:18px;font-weight:800;line-height:1.2;letter-spacing:-.01em}
+.hero .brand{font-size:13px;color:var(--muted);margin:3px 0 8px}
+.pimg{width:100%;max-height:190px;object-fit:contain;border-radius:14px;background:#fff;margin-bottom:12px}
+.grade{display:inline-block;padding:4px 10px;border-radius:8px;color:#fff;font-weight:700;font-size:13px}
+.why li{list-style:none;display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.why li:first-child{border-top:0}
+.why li .ic{flex:none;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:13px}
+.why li .good{background:var(--brand-soft)}
+.why li .bad{background:var(--warn-bg)}
+.why li b{font-weight:700}
+.minibars{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.minibars div{font-size:10.5px;color:var(--muted);font-weight:600;line-height:1.2}
+.minibars i{display:block;height:5px;border-radius:9px;margin-top:4px;background:var(--line);overflow:hidden}
+.minibars i em{display:block;height:100%}
+details.sec{padding:0}
+details.sec summary{list-style:none;display:flex;align-items:center;gap:8px;padding:16px;font-size:16px;font-weight:700;cursor:pointer}
+details.sec summary::-webkit-details-marker{display:none}
+details.sec summary::after{content:'';margin-left:auto;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;flex:none}
+details.sec[open] summary::after{transform:rotate(-135deg)}
+details.sec .secbody{padding:0 16px 16px}
+details.sec summary .cnt{font-size:12px;font-weight:600;color:var(--muted);margin-left:auto}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;border-radius:99px}
+.factor{padding:10px 0;border-top:1px solid var(--line)}.factor:first-child{border-top:0}
+.factor .top{display:flex;justify-content:space-between;font-size:14px;font-weight:600}
+.factor p{font-size:13px;color:var(--muted);margin-top:5px}
+.item{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.item:first-child{border-top:0}
+.dot{width:10px;height:10px;border-radius:50%;margin-top:6px;flex:none}
+.item b{font-size:14px}.item p{font-size:13px;color:var(--muted)}
+.risk{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.tag{font-size:12px;font-weight:700;padding:3px 9px;border-radius:7px;color:#fff;text-transform:capitalize}
+.nut{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.nut div{background:var(--soft);border-radius:12px;padding:10px}
+.nut b{display:block;font-size:15px}.nut span{font-size:11px;color:var(--muted)}
+ul.plain{list-style:none}
+ul.plain li{font-size:14px;padding:8px 0;border-top:1px solid var(--line)}ul.plain li:first-child{border-top:0}
+.alt{border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:10px;display:flex;gap:12px;align-items:center;cursor:pointer;background:var(--card)}
+.alt img{width:48px;height:48px;object-fit:contain;border-radius:10px;background:#fff;flex:none}
+.sc{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-weight:800;color:#fff;flex:none}
+.alt b{font-size:14px;display:block}.alt p{font-size:12px;color:var(--muted)}
+.note{font-size:12px;color:var(--muted);background:var(--soft);border-radius:12px;padding:10px 12px;margin-top:10px}
+.warn{background:var(--warn-bg);color:var(--warn-ink);border-radius:14px;padding:12px 14px;font-size:14px;font-weight:600;margin-bottom:12px}
+.flag{background:var(--flag-bg);color:var(--flag-ink);border-radius:14px;padding:12px 14px;font-size:14px;font-weight:600;margin-bottom:12px}
+.loading{text-align:center;padding:34px 10px}
+.spin{width:44px;height:44px;border-radius:50%;border:4px solid var(--brand-soft);border-top-color:var(--brand);animation:sp 1s linear infinite;margin:0 auto 14px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.err{background:var(--warn-bg);color:var(--warn-ink);border-radius:12px;padding:12px;font-size:14px;margin-top:10px}
+.hist{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}.hist:first-child{border-top:0}
+.hist b{font-size:14px;display:block}.hist span{font-size:12px;color:var(--muted)}
+.sres{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.sres img{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:10px}
+.sres b{font-size:14px;display:block}.sres span{font-size:12px;color:var(--muted)}
+.ngrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.ngrid label span{font-size:12px;color:var(--muted);font-weight:600}
+.ngrid .field{margin-top:2px}
+.hidden{display:none!important}
+.offline{position:sticky;top:0;z-index:8;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;text-align:center;padding:8px 12px;border-radius:12px;margin-bottom:10px}
+.infobody a{color:var(--brand)}
+.infobody li{font-size:13.5px}
+.tls{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.tl{border:2px solid;border-radius:12px;padding:6px 4px;text-align:center;display:flex;flex-direction:column;gap:1px}
+.tl span{color:#fff;font-size:10px;font-weight:800;border-radius:6px;padding:1px 0;text-transform:uppercase;letter-spacing:.03em}
+.tl b{font-size:15px}
+.tl small{font-size:10.5px;color:var(--muted);font-weight:600}
+.nbseg button{font-size:12.5px;padding:9px 4px}
+[hidden]{display:none!important}
+#install{display:none}
+/* nav, fab, toast */
+nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav .in{display:flex;max-width:560px;width:100%}
+nav button{flex:1;border:0;background:none;color:var(--muted);font:600 11.5px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button .i{font-size:21px;line-height:1}
+nav button.on{color:var(--brand)}
+.fab{position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:6;border:0;border-radius:999px;background:var(--brand);color:#fff;font:700 15px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:14px 20px;box-shadow:0 8px 24px rgba(31,122,77,.35);cursor:pointer}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:30}
+.modal .sheet{background:var(--card);color:var(--ink);border-radius:24px 24px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));max-width:560px;width:100%;max-height:90vh;overflow:auto;animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--bg);font:600 14px -apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif;padding:10px 18px;border-radius:999px;transition:all .25s;z-index:9;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="offline hidden" id="offline">📴 You're offline — saved products, history, fruit &amp; veg and clothing still work. New lookups need internet.</div>
+  <header>
+    <div class="logo">S</div>
+    <div><h1>Sanitas</h1><p>Scan it. Score it. Swap it.</p></div>
+  </header>
+
+  <!-- HOME / SCAN -->
+  <section id="v-scan">
+    <div class="card" id="install">
+      <h2>📲 Install Sanitas</h2>
+      <p class="muted" id="installTxt"></p>
+      <button class="btn ghost" id="installBtn" style="margin-top:10px">Install app</button>
+    </div>
+
+    <div id="scanIdle" class="hero-scan" role="button" tabindex="0">
+      <div class="ic">▮▯▮</div>
+      <div><b>Scan a barcode</b><span>Food, drinks, skincare, pet food, cleaning products & more</span></div>
+    </div>
+    <div id="scanLive" class="scanner hidden">
+      <video id="video" playsinline muted autoplay></video>
+      <div class="frame"></div><div class="laser"></div>
+      <div class="hint" id="hint">Line the barcode up in the box</div>
+      <button class="close" id="stopScan" aria-label="Close">✕</button>
+      <div class="ctrls"><button id="zoomBtn" class="hidden">1×</button><button id="torchBtn" class="hidden">🔦</button></div>
+    </div>
+    <div class="actions">
+      <label class="btn plain" for="photoScan">📸 Photo of barcode</label>
+      <button class="btn plain" id="focusSearch">🔎 Search</button>
+    </div>
+    <button class="btn plain" id="clothBtn" style="margin-top:10px">👕 Clothing — scan the care label</button>
+    <input id="photoScan" type="file" accept="image/*" capture="environment" style="display:none">
+    <div id="scanErr"></div>
+
+    <div class="searchbar">
+      <span>🔎</span>
+      <input id="q" inputmode="search" enterkeyhint="search" placeholder="Barcode, product, brand or fruit sticker no.">
+      <button id="qGo">Go</button>
+    </div>
+    <div id="searchRes"></div>
+
+    <div id="recentWrap" class="hidden">
+      <div class="sec-title"><h3>Recent scans</h3><button id="seeAll">See all</button></div>
+      <div class="recent" id="recent"></div>
+    </div>
+
+    <details class="card sec" style="margin-top:16px">
+      <summary>💡 How scores work</summary>
+      <div class="secbody">
+        <p class="muted"><b>Food & supplements</b> are scored out of 100 on what's actually in them, not just nutrition:</p>
+        <ul class="plain" style="margin-top:8px">
+          <li>🧪 Additives — 25</li>
+          <li>🥗 Nutrition (or protein / supplement quality) — 20</li>
+          <li>🌾 Ingredient quality — 15 <span class="muted">(added sugars, seed oils, trans fats, refined flour, fillers)</span></li>
+          <li>🏭 Processing — 15</li>
+          <li>🌱 Pesticides — 8 · ⚗️ Heavy metals — 8 · 🧴 Microplastics — 4</li>
+          <li>🍺 Alcohol — −15 to −35, capped at 49 <span class="muted">(shows % alcohol and standard drinks)</span></li>
+          <li>🙋 Fit for you — 5 <span class="muted">(your goals, diet & allergies)</span></li>
+          <li>🐾 Animal welfare — up to −10 <span class="muted">(caged eggs, factory-farmed meat, unsustainable fish, palm oil; cruelty-free status for personal care). Can be turned off.</span></li>
+        </ul>
+        <p class="muted" style="margin-top:10px"><b>Loose fruit & veg:</b> type the number on the sticker (e.g. 4011 for bananas; organic starts with 9).</p>
+        <p class="muted" style="margin-top:10px"><b>👕 Clothing</b> is scored from the care label: organic & certified (10), chemicals & finishes (25), microplastics (20), environment (20), skin & comfort (25), plus animal welfare.</p>
+        <p class="muted" style="margin-top:10px"><b>Pet food</b> is scored on pet safety (toxic ingredients), ingredient quality, preservatives & colours, and protein. <b>Household products</b> on health & safety, irritants, environment and packaging.</p>
+        <p class="muted" style="margin-top:10px"><b>Personal care</b> is scored on hormone disruptors, irritants, other health concerns, microplastics and skin fit.</p>
+        <p class="muted" style="margin-top:10px">80+ Excellent · 60+ Good · 40+ Mediocre · 20+ Poor · below 20 Bad</p>
+      </div>
+    </details>
+  </section>
+
+  <section id="v-result" class="hidden"></section>
+
+  <section id="v-history" class="hidden">
+    <div class="card"><h2>🕘 Your scans</h2><div id="histList"></div></div>
+    <button class="btn danger" id="clearHist">Clear history</button>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="v-me" class="hidden">
+    <div class="card">
+      <h2>🎨 Appearance</h2>
+      <div class="seg" id="themeSeg">
+        <button data-t="system">📱 Auto</button><button data-t="light">☀️ Light</button><button data-t="dark">🌙 Dark</button>
+      </div>
+      <p class="muted" style="margin-top:8px">Auto follows your phone's setting.</p>
+    </div>
+
+    <div class="card">
+      <h2>🙋 About you</h2>
+      <p class="muted">Personalises the "Fit for you" part of the score. Saved on this phone only.</p>
+      <label class="lbl">Goals</label><div class="chips" id="goals"></div>
+      <label class="lbl">Diet & preferences</label><div class="chips" id="diets"></div>
+      <label class="lbl">Skin (for personal care)</label><div class="chips" id="skin"></div>
+      <label class="lbl">Avoid / allergies</label>
+      <input class="field" id="avoid" placeholder="e.g. peanuts, milk, caffeine">
+    </div>
+
+    <div class="card">
+      <h2>🐾 Animal welfare</h2>
+      <p class="muted">Checks cruelty-free certification on personal care, and how animal ingredients in food were likely farmed (caged eggs, factory-farmed chicken and pork, unsustainable fishing, palm oil).</p>
+      <div class="chips" id="animal"></div>
+    </div>
+
+    <div class="card">
+      <h2>🌍 Environment</h2>
+      <p class="muted">Every result shows an environmental impact grade (A–E). Turn this on if you want D and E grades to lower the score (−3 / −6).</p>
+      <div class="chips" id="envPref"></div>
+    </div>
+
+    <div class="card">
+      <h2>🛒 Shopping</h2>
+      <label class="lbl" style="margin-top:0">Where you shop</label>
+      <select class="field" id="regionSel"></select>
+      <p class="muted" style="margin-top:6px">Search results and alternatives from here come first. Scanning works for products from any country.</p>
+    </div>
+
+    <div class="card">
+      <h2>📦 My products</h2>
+      <p class="muted" id="myCount"></p>
+      <div id="myList" style="margin-top:6px"></div>
+      <div class="row" style="margin-top:12px"><button class="btn plain" id="expShare">📤 Share</button><button class="btn plain" id="expDl">💾 Download</button></div>
+      <div class="row" style="margin-top:8px"><label class="btn plain" for="impFile">📥 Import file</label><button class="btn plain" id="expCopy">📋 Copy</button></div>
+      <input type="file" id="impFile" accept=".json,application/json,text/plain" style="display:none">
+      <details style="margin-top:12px"><summary class="muted" style="cursor:pointer">Paste a list someone sent you</summary>
+        <textarea class="field" id="impText" placeholder="Paste the copied list here"></textarea>
+        <button class="btn ghost" id="impGo" style="margin-top:8px">Import pasted list</button></details>
+    </div>
+
+    <details class="card sec">
+      <summary>⚙️ Advanced</summary>
+      <div class="secbody">
+        <label class="lbl" style="margin-top:0">USDA database key (optional)</label>
+        <input class="field" id="usdaKey" placeholder="Blank = shared demo key" autocomplete="off">
+        <p class="muted" style="margin-top:6px">Free from <a href="https://fdc.nal.usda.gov/api-key-signup" target="_blank" rel="noopener">fdc.nal.usda.gov</a>. Only needed if you scan lots of US products.</p>
+        <button class="btn danger" id="clearCustom" style="margin-top:14px">Delete products I added</button>
+      </div>
+    </details>
+
+    <div class="card">
+      <h2>ℹ️ About & legal</h2>
+      <div class="row"><button class="btn plain" id="btnSources">📚 Sources</button><button class="btn plain" id="btnPrivacy">🔒 Privacy</button></div>
+      <button class="btn plain" id="btnAbout" style="margin-top:8px">ℹ️ About Sanitas</button>
+    </div>
+
+    <button class="btn primary" id="saveMe">Save</button>
+    <p class="muted" id="savedMsg" style="margin-top:8px;text-align:center"></p>
+    <p class="muted" style="margin:14px 4px;text-align:center">Sanitas gives general info, not medical advice. Pesticide, heavy metal and microplastic ratings are estimates. Data: Open Food Facts, Open Beauty Facts, USDA.</p>
+  </section>
+</div>
+
+<button class="fab hidden" id="fab">📷 Scan another</button>
+<div class="toast" id="toast"></div>
+<div class="modal hidden" id="modal"></div>
+
+<nav><div class="in">
+  <button data-v="scan" class="on"><span class="i">🏠</span>Home</button>
+  <button data-v="history"><span class="i">🕘</span>History</button>
+  <button data-v="me"><span class="i">⚙️</span>Settings</button>
+</div></nav>
+
+<script src="native.js"></script>
+<script src="info.js"></script>
+<script src="barcode.js"></script>
+<script src="labelscan.js"></script>
+<script src="special.js"></script>
+<script src="produce.js"></script>
+<script src="env.js"></script>
+<script src="other.js"></script>
+<script src="clothing.js"></script>
+<script src="animal.js"></script>
+<script src="cosmetics.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
