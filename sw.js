@@ -1,5 +1,5 @@
 // Sanitas service worker: caches the app so it opens instantly; food data always comes fresh from the network.
-const CACHE = 'sanitas-v22';
+const CACHE = 'sanitas-v23';
 const SHELL = ['./', 'index.html', 'app.js', 'cosmetics.js', 'animal.js', 'special.js', 'produce.js', 'env.js', 'other.js', 'clothing.js', 'info.js', 'native.js', 'ui.js', 'archivo.woff2', 'archivo-ext.woff2', 'archivo-vi.woff2', 'i18n.js', 'i18n-dict.js', 'healthdb.js', 'labelscan.js', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png',
   'barcode.js', 'zxing_reader.wasm'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });

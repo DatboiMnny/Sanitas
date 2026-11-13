@@ -1033,6 +1033,7 @@ function analyse(p){
     if (sugars.length){ iq -= Math.min(1 + sugars.length, 5); iqBad.push(`${sugars.length} type${sugars.length > 1 ? 's' : ''} of added sugar`); }
     if (parts.slice(0, 2).some(x => /sugar|syrup|dextrose|glucose|fructose/.test(x))){ iq -= 2; iqBad.push('sugar is a main ingredient'); }
     if (/hydrogenated/.test(plain)){ iq -= 5; iqBad.push('hydrogenated fat (trans fats)'); }
+    if (parts.slice(0, 2).some(x => /^(iodi[sz]ed |sea |rock |pink )?salt\b/.test(x))){ iq -= 3; iqBad.push('salt is a main ingredient'); if (N.sodium == null) effects.push('🧂 Salt is one of the main ingredients — seasoning blends can be a third salt or more, so use sparingly.'); }
     if (seedOils.length){ if (has('Avoid seed oils')){ iq -= 4; iqBad.push('seed oils'); } }
     if (/\bpalm\b/.test(plain)){ iq -= 1; iqBad.push('palm oil'); }
     if (/(wheat flour|white flour|enriched flour|bromated flour|plain flour|refined flour)/.test(plain) && !/wholemeal|whole ?grain|whole wheat/.test(plain)){ iq -= 2; iqBad.push('refined white flour'); }
@@ -1070,6 +1071,10 @@ function analyse(p){
   // 5. Heavy metals (10) — estimate
   const hmText = ingText + ' ' + cats + ' ' + nameOf(p).toLowerCase();
   const hmHits = HM_RULES.filter(rule => rule[0].test(hmText));
+  // dried herbs & spices: independent testing (Consumer Reports) found heavy metals in every oregano and thyme tested
+  const isSpice = /\bherbs?\b|\bspices?\b|seasoning|oregano|thyme|cumin|paprika|turmeric|cinnamon|\bground\b|\bdried\b/.test(nameOf(p).toLowerCase() + ' ' + cats);
+  if (isSpice && /\b(oregano|thyme)\b/.test(ingText)) hmHits.push([null, 'lead & cadmium', 3, 'Dried oregano and thyme had concerning heavy-metal levels in every brand Consumer Reports tested. A pinch in cooking keeps exposure low.']);
+  else if (isSpice && !hmHits.length && /\b(cumin|ginger|basil|chill?i)\b/.test(ingText)) hmHits.push([null, 'lead', 1, 'Some brands of cumin, ginger, basil and chilli tested with moderate heavy-metal levels. Results vary by brand.']);
   let hmPts = 10 - hmHits.reduce((a, r) => a + r[2], 0);
   if (tested && hmHits.length) hmPts += 2;
   hmPts = clamp(hmPts, 1, 10);
