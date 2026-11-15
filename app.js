@@ -69,7 +69,7 @@ window.addEventListener('online', setOffline); window.addEventListener('offline'
 setTimeout(() => FSInfo.welcome(), 400);
 $('#focusSearch').onclick = () => { $('#q').focus(); $('#q').scrollIntoView({behavior:'smooth', block:'center'}); };
 $('#fab').onclick = () => { show('scan'); startScan(); };
-$('#clearHist').onclick = () => { store.set('fs_hist', []); renderHistory(); renderRecent(); toast('History cleared'); };
+$('#clearHist').onclick = () => { store.set('fs_hist', []); renderHistory(); renderRecent(); toast('History wiped. Fresh start ✨'); };
 $('#clearCustom').onclick = () => { store.set('fs_custom', {}); renderMyProducts(); toast('Your added products were deleted'); };
 ['#avoid','#regionSel','#usdaKey'].forEach(id => $(id).addEventListener('change', () => $('#saveMe').click()));
 
@@ -430,7 +430,7 @@ async function getUSDA(code){
 async function lookup(code){
   $('#q').value = ''; $('#searchRes').innerHTML = '';
   show('result');
-  $('#v-result').innerHTML = `<div class="card loading"><div class="spin"></div><b>Looking up ${esc(code)}…</b><p class="muted">Checking ingredients, additives and nutrition</p></div>`;
+  $('#v-result').innerHTML = `<div class="card loading"><div class="spin"></div><b>Looking up ${esc(code)}…</b><p class="muted">Reading the fine print so you don't have to</p></div>`;
   try{
     const got = await getProduct(code);
     if (!got || !got.p){
@@ -457,6 +457,7 @@ function display(got, code){
     if (got.src !== 'food'){
       const r = nonFoodAnalyse(p, got.src);
       renderCos(r);
+      if (!r.noIngredients) confetti(r.score);
       enhanceResult(r);
       addSourceNote(p, got);
       if (!r.noIngredients){
@@ -477,6 +478,7 @@ function display(got, code){
     if (!got.custom && !p._produce && noIng && nKeys < 3){
       // not enough data for a meaningful score
       const ring = document.querySelector('#v-result .ring'); if (ring){ ring.querySelector('.num b').textContent = '?'; ring.querySelectorAll('circle')[1].setAttribute('stroke', 'var(--muted)'); ring.querySelectorAll('circle')[1].setAttribute('stroke-dashoffset', String(2 * Math.PI * 50)); }
+      const vb = document.querySelector('#v-result .vibe'); if (vb) vb.remove();
       const gr = document.querySelector('#v-result .hero .grade'); if (gr){ gr.textContent = 'Not enough info'; gr.style.background = 'var(--muted)'; }
       const sum = document.querySelector('#v-result .hero + p'); if (sum) sum.textContent = 'The database only has the name for this one, so there\'s nothing to score yet. Complete it from the label for a real score.';
       const why = [...document.querySelectorAll('#v-result .card')].find(c => /Why this score/.test(window.FSI18N ? FSI18N.origText(c) : c.textContent)); if (why) why.remove();
@@ -491,6 +493,7 @@ function display(got, code){
     h.unshift({code:r.code, name:r.name, brand:r.brand, score:r.score, kind: p._produce ? 'produce' : 'food', emoji: p._produce ? p._produce.emoji : '', img:p.image_front_small_url || '', ts:Date.now()});
     store.set('fs_hist', h.slice(0, 50));
     findAlternatives(p, r).catch(() => { const el = $('#alts'); if (el) el.innerHTML = '<p class="muted">Couldn\'t load alternatives right now.</p>'; });
+    if (document.querySelector('#v-result .vibe')) confetti(r.score);
 }
 
 const KIND_ICON = {beauty:'🧴 ', pet:'🐾 ', products:'🧽 ', clothing:'👕 ', food:''};
@@ -700,7 +703,7 @@ function renderAddForm(code, pre){
   const NF = [['kj','Energy (kJ)', val('energy-kj_100g')], ['protein','Protein (g)', val('proteins_100g')], ['fat','Fat, total (g)', val('fat_100g')], ['sat','Sat. fat (g)', val('saturated-fat_100g')],
     ['carbs','Carbs (g)', val('carbohydrates_100g')], ['sugar','Sugars (g)', val('sugars_100g')], ['fibre','Fibre (g)', val('fiber_100g')], ['sodium','Sodium (mg)', n.sodium_100g != null ? Math.round(n.sodium_100g * 1000) : ''], ['abv','Alcohol % (drinks)', val('alcohol_100g')]];
   $('#v-result').innerHTML = `
-  ${pre && !pre._hint ? '' : `<div class="card"><h2>🤔 Not in any database yet</h2>
+  ${pre && !pre._hint ? '' : `<div class="card"><h2>🤔 Plot twist: nobody's added this one yet</h2>
     <p class="muted">${/^9?\d{4}$/.test(code) ? `Sticker code <b>${esc(code)}</b> isn't in the built-in fruit &amp; veg list (it covers about 300 common items). Try searching the name, e.g. "mango".` : instore ? 'This looks like an <b>in-store barcode</b> (bakery, deli or weighed items). These are unique to each store, so no database has them.' :
       `Barcode ${esc(code)} isn't in Open Food Facts, Open Beauty Facts, Open Pet Food Facts, Open Products Facts, USDA, the NIH supplement database or FDA medicine labels yet. Lots of Australian supermarket, pharmacy and bakery products are missing.`}</p></div>`}
   ${pre && pre._fromDb ? '' : `<button class="btn ghost" id="byName" style="margin:-4px 0 12px">🔎 Search the databases by name instead</button>`}
@@ -889,7 +892,7 @@ function analyse(p){
   const ingText = englishIngredients(p).toLowerCase();
   const cats = (p.categories_tags || []).join(' ') + ' ' + (p.categories || '').toLowerCase();
   const isDrink = /beverage|drink|water|soda|juice/.test(cats);
-  const breakdown = [], warnings = [], effects = [];
+  const breakdown = [], warnings = [], effects = [], alerts = [];
   const type = productType(p, N);
   const sp0 = window.FSSpecial ? FSSpecial.kind(p, N, cats, ingText) : null;
   const sp = p._produce ? 'produce' : (type === 'food' || sp0 === 'alcohol' ? sp0 : null);
@@ -1094,7 +1097,16 @@ function analyse(p){
   if (/glass/.test(pack) && !plastic) mpWhy.push('glass packaging is a good sign');
   if (/seafood|fish|tuna|salmon|prawn|shrimp|mussel|oyster|shellfish|sardine/.test(cats)){ mpPts -= 3; mpWhy.push('seafood tends to carry microplastics from the ocean'); }
   if (/sea-salt|salts\b|en:salts/.test(cats) || /sea salt/.test(ingText)){ mpPts -= 2; mpWhy.push('sea salt commonly contains microplastic particles'); }
-  if (/bottled-water|en:waters|mineral-water|spring-water/.test(cats)){ mpPts -= 3; mpWhy.push('bottled water has some of the highest measured microplastic counts'); }
+  // Bottled water: a 2024 Columbia/Rutgers study (PNAS) found ~240,000 plastic particles in an average litre, mostly nanoplastics
+  const nm = nameOf(p).toLowerCase();
+  const isWaterProduct = sp === 'water' || /bottled-water|en:waters|mineral-water|spring-water|sparkling-water/.test(cats) || (/\b(spring|mineral|still|sparkling|purified|alkaline|natural|artesian|drinking)?\s*water\b/.test(nm) && !/watermelon|water ?crackers?|water ?chestnut|rose ?water|micellar|cleansing|watercress/.test(nm));
+  var waterPlastic = false;
+  if (isWaterProduct && !/glass|\bcan\b|en:can|alumin|carton|tetra|cardboard/.test(pack)){
+    waterPlastic = true; mpPts = 2;
+    mpWhy.length = 0;
+    mpWhy.push('water in a plastic bottle is one of the biggest known sources of microplastics — a 2024 study found about 240,000 plastic particles in an average litre');
+    alerts.push('Plastic-bottled water: a 2024 study found about 240,000 tiny plastic particles per litre, mostly from the bottle and filters. Tap or filtered water in a glass or steel bottle avoids most of this.');
+  }
   if (/tea-bags|en:teas|herbal-teas/.test(cats) || sp === 'tea'){
     const tb = (pack + ' ' + nameOf(p).toLowerCase() + ' ' + ingText);
     if (/nylon|mesh|pyramid|silky|polypropylene|\bpla\b|plastic tea bag/.test(tb)){ mpPts -= 4; mpWhy.push('mesh/pyramid tea bags release billions of plastic particles in hot water'); }
@@ -1206,6 +1218,7 @@ function analyse(p){
   if (overDose.length && score > (overDose.some(d => d.status === 'way over') ? 39 : 54)){ score = overDose.some(d => d.status === 'way over') ? 39 : 54; caps.push(`Capped at ${score} because a dose is above the safe upper limit.`); }
   if (warnings.some(w => /honey — never give honey/.test(w)) && score > 39){ score = 39; caps.push('Capped at 39 because it contains honey and is aimed at babies.'); }
   if (alc && score > 49){ score = 49; caps.push('Capped at 49 because it contains alcohol.'); }
+  if (waterPlastic && score > 75){ score = 75; caps.push('Capped at 75 because water in plastic bottles is one of the biggest sources of microplastics.'); }
   if (hi && score > 59){ score = 59; caps.push('Capped at 59 because of a high-concern additive.'); }
   if (hmRisk === 'high' && !tested && score > 59){ score = 59; caps.push('Capped at 59 because of high heavy-metal risk with no third-party testing.'); }
   if (warnings.some(w => /avoid list|gluten/i.test(w)) && score > 30){ score = 30; caps.push('Capped at 30 because it conflicts with your allergies/avoid list.'); }
@@ -1215,7 +1228,7 @@ function analyse(p){
     (caps.length ? ' ' + caps[caps.length - 1] : '') + (warnings.length ? ' ⚠️ ' + warnings[0] : '') + (flags.length ? ' 🌻 Contains seed oils.' : '') + (hmRisk === 'high' ? ' ⚠️ Higher heavy-metal risk.' : '');
 
   return {code: p.code, name: nameOf(p), brand: p.brands || '', qty: p.quantity || '', img: p.image_front_url || p.image_front_small_url || '',
-    score, nova, ns, breakdown, N, additives, ingredients, effects, warnings, summary,
+    score, nova, ns, breakdown, N, additives, ingredients, effects, warnings, alerts, summary,
     pest:{risk:pestRisk, why:pestWhy}, mp:{risk:mpRisk, why: mpWhy.length ? cap(mpWhy.join('; ')) + '.' : 'No obvious microplastic sources.'},
     hsr: (() => { const m = (p.labels_tags || []).join(' ').match(/health-star-rating-(\d)(?:-(5))?\b/); return m ? (m[2] ? m[1] + '.5' : m[1]) : null; })(), isDrink, env, envPenalty, bc: window.FSEnv ? FSEnv.barcodeCountry(p.code) : null, produce: p._produce || null, sp, alc, dose, animal, animalPenalty: animal && animalCount ? animal.penalty : 0, origin: originOf(p), cats: p.categories_tags || [], type, seedOils, tested, perServe, flags, hm:{risk:hmRisk, why:hmWhy}};
 }
@@ -1376,6 +1389,29 @@ function wireNutrition(){
   });
 }
 
+// ---------------- a bit of personality ----------------
+const VIBES = [
+  [90, ['Absolute weapon 💪', 'Gold star stuff ⭐', 'Your body says thanks 🙌']],
+  [80, ['Ripper choice 👌', 'Solid gold 🥇', 'Yes please ✅']],
+  [60, ['Pretty decent 👍', 'Not bad at all 🙂', 'Good enough for a Tuesday 😌']],
+  [40, ['Bit meh 😐', 'Sometimes food 🤷', 'Fine, but there are better 👀']],
+  [20, ['Yikes 😬', 'Treat, not a habit 🍬', 'Maybe put it back 🫣']],
+  [0,  ['Hard pass 🙅', 'Oof. Run 🏃', 'Your body is filing a complaint 📝']]
+];
+function vibe(score, code){
+  const band = VIBES.find(v => score >= v[0]) || VIBES[VIBES.length - 1];
+  let h = 0; for (const c of String(code || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return band[1][h % band[1].length];
+}
+function vibeHtml(r){ return typeof r.score === 'number' ? `<p class="vibe">${esc(vibe(r.score, r.code))}</p>` : ''; }
+function confetti(score){
+  if (score < 85 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const box = document.createElement('div'); box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
+  const cols = ['#1f9d55', '#ffc933', '#ff5a5f', '#3fa7ff', '#7cb342'];
+  box.innerHTML = Array.from({length: 26}, (_, k) => `<i style="left:${4 + Math.random() * 92}%;background:${cols[k % cols.length]};animation-delay:${Math.random() * .25}s;transform:rotate(${Math.random() * 360}deg)"></i>`).join('');
+  document.body.appendChild(box); setTimeout(() => box.remove(), 1800);
+}
+
 // Colombia's black octagon warning seals — shown for Colombian products, or if you shop in Colombia
 const SEAL_ES = {'SODIUM': 'EXCESO EN SODIO', 'SUGARS': 'EXCESO EN AZÚCARES', 'SATURATED FAT': 'EXCESO EN GRASAS SATURADAS', 'TRANS FAT': 'EXCESO EN GRASAS TRANS', 'SWEETENERS': 'CONTIENE EDULCORANTE'};
 function colombiaSealsHtml(r, p){
@@ -1395,6 +1431,7 @@ function renderResult(r, p){
   $('#v-result').innerHTML = `
   ${r.warnings.length ? `<div class="warn">⚠️ ${r.warnings.map(esc).join('<br>')}</div>` : ''}
   ${(r.flags || []).length ? `<div class="flag">🌻 ${r.flags.map(esc).join('<br>')}</div>` : ''}
+  ${(r.alerts || []).length ? `<div class="flag">🧴 ${r.alerts.map(esc).join('<br>')}</div>` : ''}
   <div class="card">
     ${r.img ? `<img class="pimg" src="${esc(r.img)}" alt="">` : ''}
     <div class="hero">
@@ -1416,6 +1453,7 @@ function renderResult(r, p){
         ${r.type === 'protein' ? '<span class="pill" style="margin-left:6px">💪 Protein</span>' : r.type === 'supplement' ? '<span class="pill" style="margin-left:6px">💊 Supplement</span>' : ''}
       </div>
     </div>
+    ${vibeHtml(r)}
     <p style="margin-top:14px;font-size:15px">${esc(r.summary)}</p>
     ${colombiaSealsHtml(r, p)}
   </div>
@@ -1539,6 +1577,7 @@ function renderCos(r){
         ${r.animal ? `<span class="pill" style="margin-top:6px;${r.animal.certified ? '' : 'background:var(--soft);color:var(--muted)'}">${esc(r.animal.badge)}</span>` : ''}
       </div>
     </div>
+    ${vibeHtml(r)}
     <p style="margin-top:14px;font-size:15px">${esc(r.summary)}</p>
   </div>
 
@@ -1613,7 +1652,7 @@ function renderHistory(){
   const h = store.get('fs_hist', []);
   $('#histList').innerHTML = h.length ? h.map(x => `<div class="hist" data-c="${esc(x.code)}"><div class="sc" style="background:${typeof x.score === 'number' ? col(x.score) : 'var(--muted)'}">${x.score}</div>
     <div><b>${x.emoji ? x.emoji + ' ' : ({beauty:'🧴 ', pet:'🐾 ', products:'🧽 ', clothing:'👕 '}[x.kind] || (x.cos ? '🧴 ' : ''))}${esc(x.name)}</b><span>${esc(x.brand || '')} · ${new Date(x.ts).toLocaleDateString('en-AU')}</span></div></div>`).join('')
-    : '<p class="muted">Nothing yet. Your scans will show up here.</p>';
+    : '<p class="muted">Nothing scanned yet. Go raid the pantry 🕵️</p>';
   $('#histList').querySelectorAll('.hist').forEach(el => el.onclick = () => lookup(el.dataset.c));
 }
 
